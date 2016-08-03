@@ -14,6 +14,8 @@ stack_top:
 
 .section .text
 
+.gdt_pointer:
+	.skip 6
 
 .global _color
 .type _color, @function
@@ -43,7 +45,7 @@ _color:
 .global _gdt_flush
 .type _gdt_flush, @function
 _gdt_flush:
-	#lgdt (gp - KERNEL_VIRTUAL_BASE)
+	#lgdt (gp)
 	ljmp $0x8, $(_gdt_complete_flush - KERNEL_VIRTUAL_BASE)
 _gdt_complete_flush:
 	mov $0x10, %eax
@@ -83,6 +85,9 @@ _start:
 	pushl $0x5F
 	call _color
 
+	#leal (_higher_half_start), %ecx
+	#jmp %ecx
+
 	cli
 	hlt
 .Lhang:
@@ -91,9 +96,9 @@ _start:
 .size _start, . - _start		# Set size of the _start symbol to the current location '.' minus its start.
 
 
-.global _higher_half_start
-.type _higher_half_start, @function
 _higher_half_start:
+	pushl $0x6F
+	call _color
 	cli
 	hlt
 
