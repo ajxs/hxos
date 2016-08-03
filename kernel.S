@@ -45,7 +45,7 @@ _color:
 .global _gdt_flush
 .type _gdt_flush, @function
 _gdt_flush:
-	#lgdt (gp)
+	lgdt (gp - KERNEL_VIRTUAL_BASE)
 	ljmp $0x8, $(_gdt_complete_flush - KERNEL_VIRTUAL_BASE)
 _gdt_complete_flush:
 	mov $0x10, %eax
@@ -71,16 +71,13 @@ _start:
 	pushl $0x2F
 	call _color
 
-	# protected mode
-	movl %cr0, %eax
-	orl $1, %eax
-	movl %eax, %cr0
+	call gdt_install
+	call _gdt_flush
 
 	pushl $0x3F
 	call _color
 
-	call gdt_install
-	call _gdt_flush
+	call _protected_mode_init
 
 	pushl $0x5F
 	call _color
@@ -94,6 +91,20 @@ _start:
 	jmp .Lhang
 
 .size _start, . - _start		# Set size of the _start symbol to the current location '.' minus its start.
+
+
+.PModeMain:
+	sti
+	ret
+
+.global _protected_mode_init
+.type _protected_mode_init, @function
+_protected_mode_init:
+	movl %cr0, %eax
+	orl $0x1, %eax
+	movl %eax, %cr0
+	ljmp $0x0008, $(.PModeMain - KERNEL_VIRTUAL_BASE)
+
 
 
 _higher_half_start:

@@ -25,13 +25,13 @@ BINARY=hxos.bin
 all: $(BINARY)
 
 $(BINARY): $(OBJECTS)
-	$(CC) -T linker.ld -o $(BINARY) $(LDFLAGS) $(OBJECTS) $(LIBS)
+	$(CC) -g -T linker.ld -o $(BINARY) $(LDFLAGS) $(OBJECTS) $(LIBS)
 
 %.o: %.c
-	$(CC) $(INCLUDE_PARAMS) -c $< -o $@ $(CFLAGS)
+	$(CC) $(INCLUDE_PARAMS) -g -c $< -o $@ $(CFLAGS)
 
 %.o: %.S
-	$(CC) $(INCLUDE_PARAMS) -c $< -o $@ $(CFLAGS)
+	$(CC) $(INCLUDE_PARAMS) -g -c $< -o $@ $(CFLAGS)
 
 clean:
 	rm -rf *.o *.bin;
