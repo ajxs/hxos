@@ -9,7 +9,7 @@ LDFLAGS=-ffreestanding -O2 -nostdlib
 LIBS=-lgcc
 
 C_SOURCES=gdt.c
-AS_SOURCES=kernel.S
+AS_SOURCES=hxos.S
 
 SOURCES=$(C_SOURCES)
 SOURCES+=$(AS_SOURCES)
