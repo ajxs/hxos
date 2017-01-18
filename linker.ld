@@ -1,23 +1,16 @@
 ENTRY(_start)
 SECTIONS {
-	. = 0xC0100000;
+	. = 0x00100000;
 
-	.text ALIGN(4K) : AT(ADDR(.text) - 0xC0000000) {
-		_section_text = .;
+	.text BLOCK(4K) : ALIGN(4K) {
 		*(.multiboot)
 		*(.text)
 	}
 
-	.data ALIGN(4K) : AT(ADDR(.data) - 0xC0000000) {
-		_section_data = .;
-		*.(.data)
-	}
-
-	.bss ALIGN(4K) : AT(ADDR(.bss) - 0xC0000000) {
+	.bss BLOCK(4K) : ALIGN(4K) {
 		*(COMMON)
 		*(.bss)
 		kernel_end = .;
-		page_tables_start = .;
-		*(.page_tables)
 	}
+
 }
