@@ -48,3 +48,18 @@ tty_print:
 
 	pop %ebp
 	ret
+
+
+global	strlen    #int strlen(const char *string);
+strlen:
+	push %edi
+	sub %ecx, %ecx
+	mov 0x8(%esp)
+	not %ecx
+	sub %al, %al
+	cld
+repne scasb
+	not %ecx
+	pop %edi
+	leal -1(%ecx), %eax
+	ret
