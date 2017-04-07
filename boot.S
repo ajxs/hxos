@@ -15,8 +15,8 @@ stack_top:
 
 .section .text
 
-.type _multiboot_init, @function
-_multiboot_init:
+.type multiboot_init, @function
+multiboot_init:
 	push %ebp
 	movl %esp, %ebp
 
@@ -24,15 +24,16 @@ _multiboot_init:
 	movl 0x12(%ebp), %ebx     # pointer to MBI.
 
 	cmpl $MULTIBOOT_BOOTLOADER_MAGIC, %eax
-	jne _multiboot_fail
+	jne multiboot_fail
 
 	pop %ebp
 	ret
 
-.type _multiboot_fail, @function
-_multiboot_fail:
-	pushl $0x4F    #red
-	call _tty_clear_color
+.type multiboot_fail, @function
+multiboot_fail:
+	pushl $0x4F    #red/white
+	call tty_set_colors
+	call tty_clear
 	cli
 	hlt
 
@@ -45,6 +46,6 @@ _start:
 
 	push %ebx
 	push %eax
-	call _multiboot_init
+	call multiboot_init
 
-	jmp _kernel_init
+	jmp kernel_init
