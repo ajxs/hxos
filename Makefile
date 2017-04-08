@@ -18,7 +18,7 @@ BINARY=hxos.bin
 all: $(BINARY)
 
 $(BINARY): $(OBJECTS)
-	$(CC) -g -T linker.ld -o $(BINARY) $(LDFLAGS) $(OBJECTS) $(LIBS)
+	$(CC) -g3 -T linker.ld -o $(BINARY) $(LDFLAGS) $(OBJECTS) $(LIBS)
 
 %.o: %.c
 	$(CC) $(INCLUDE_PARAMS) -g -c $< -o $@ $(CFLAGS)

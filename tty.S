@@ -32,13 +32,27 @@ tty_set_colors:
 	pop %ebp
 	ret
 
+# void tty_putchar(uint8_t c, uint8_t pos);
+# @TODO: improve this - even though it matches gcc -S output... investigate
+.global tty_putchar
 .type tty_putchar, @function
 tty_putchar:
-	push %ebp
+	pushl %ebp
 	movl %esp, %ebp
 
-	pop %ebp
+	movl 12(%ebp), %edx                    #pos
+	addl %edx, %edx                        #double pos to take 16bit width into account
+	addl $FRAMEBUFFER_ADDR, %edx
+
+	movsbw 8(%ebp), %ax
+	movsbw tty_col, %cx                    #create VGA entry from existing tty_col
+	shlw $0x8, %cx
+	orw %cx, %ax
+
+	movw %ax, (%edx)
+	popl %ebp
 	ret
+
 
 .global tty_print
 .type tty_print, @function
@@ -50,11 +64,11 @@ tty_print:
 	ret
 
 
-global	strlen    #int strlen(const char *string);
-strlen:
+.global	tty_strlen    #int strlen(const char *string);
+tty_strlen:
 	push %edi
 	sub %ecx, %ecx
-	mov 0x8(%esp)
+	mov 0x8(%esp), %edi
 	not %ecx
 	sub %al, %al
 	cld
