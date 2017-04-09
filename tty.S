@@ -44,7 +44,7 @@ tty_putchar:
 	addl %edx, %edx                        #double pos to take 16bit width into account
 	addl $FRAMEBUFFER_ADDR, %edx
 
-	movsbw 8(%ebp), %ax
+	movzbw 8(%ebp), %ax
 	movsbw tty_col, %cx                    #create VGA entry from existing tty_col
 	shlw $0x8, %cx
 	orw %cx, %ax
@@ -57,8 +57,18 @@ tty_putchar:
 .global tty_print
 .type tty_print, @function
 tty_print:
-	push %ebp                # Save the old %ebp.
+	pushl %ebp                # Save the old %ebp.
 	movl %esp, %ebp          # Point %ebp to the new stack frame.
+
+	movl 8(%ebp), %eax
+	#movl $0x53, %eax
+	#movzbl 12(%eax), %ebx
+	#movl (%eax), %ebx
+	pushl $0
+	pushl %eax
+	call tty_putchar
+	popl %edx
+	popl %edx
 
 	pop %ebp
 	ret

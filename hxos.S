@@ -1,3 +1,11 @@
+.section .bss
+
+test_str:
+	.asciz "Testing Framebuffer."
+
+test_char:
+	.byte 0x54
+
 .section .text
 
 .global kernel_init
@@ -8,14 +16,8 @@ kernel_init:
 	call tty_clear
 	popl %edx
 
-	pushl $0x4
-	pushl $0x53
-	call tty_putchar
-	popl %edx
-	popl %edx
-	
-	pushl $0x5
-	pushl $0x53
+	pushl $0
+	pushl $0x54
 	call tty_putchar
 	popl %edx
 	popl %edx
