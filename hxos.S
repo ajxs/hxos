@@ -1,4 +1,4 @@
-.section .bss
+.section .data
 
 test_str:
 	.asciz "Testing Framebuffer."
@@ -17,10 +17,12 @@ kernel_init:
 	popl %edx
 
 	pushl $0
-	pushl $0x54
+	pushl test_char
 	call tty_putchar
 	popl %edx
 	popl %edx
+
+	
 
 .Lhang:
 	jmp .Lhang
