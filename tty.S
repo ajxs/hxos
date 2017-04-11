@@ -60,7 +60,7 @@ tty_print:
 	pushl %ebp
 	movl %esp, %ebp
 
-	movl $0, %ecx
+	movl $1, %ecx
 	movzbl 8(%ecx, %ebp), %eax
 
 	pushl tty_pos
