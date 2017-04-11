@@ -57,8 +57,22 @@ tty_putchar:
 .global tty_print
 .type tty_print, @function
 tty_print:
-	pushl %ebp                # Save the old %ebp.
-	movl %esp, %ebp          # Point %ebp to the new stack frame.
+	pushl %ebp
+	movl %esp, %ebp
+
+	movl $0, %ecx
+	movzbl 8(%ecx, %ebp), %eax
+
+	pushl tty_pos
+	pushl %eax
+	call tty_putchar
+	pop %edx
+	pop %edx
+
+	movl tty_pos, %ebx
+	inc %ebx
+	movl %ebx, tty_pos
+
 
 	pop %ebp
 	ret
@@ -72,7 +86,7 @@ tty_strlen:
 	not %ecx
 	sub %al, %al
 	cld
-repne scasb
+	repne scasb        #rep not equal scan strng byte
 	not %ecx
 	pop %edi
 	leal -1(%ecx), %eax
