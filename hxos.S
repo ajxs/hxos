@@ -3,8 +3,8 @@
 test_str:
 	.asciz "Testing Framebuffer."
 
-test_char:
-	.byte 0x53
+test_str2:
+	.asciz "And another thing."
 
 .section .text
 
@@ -16,13 +16,11 @@ kernel_init:
 	call tty_clear
 	popl %edx
 
-	#pushl $0
-	#pushl test_char
-	#call tty_putchar
-	#popl %edx
-	#popl %edx
+	pushl $test_str
+	call tty_print
+	popl %edx
 
-	pushl test_str
+	pushl $test_str2
 	call tty_print
 	popl %edx
 

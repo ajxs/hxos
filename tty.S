@@ -60,23 +60,40 @@ tty_print:
 	pushl %ebp
 	movl %esp, %ebp
 
-	movl $1, %ecx
-	movzbl 8(%ecx, %ebp), %eax
+	subl $40, %esp
+	movl $0, -16(%ebp)
+	movl 8(%ebp), %eax
 
-	pushl tty_pos
-	pushl %eax
-	call tty_putchar
-	pop %edx
-	pop %edx
+	movl %eax, (%esp)
+	call tty_strlen
+	movl %eax, -12(%ebp)   # save strlen at -12(%ebp)
 
-	movl tty_pos, %ebx
-	inc %ebx
-	movl %ebx, tty_pos
+	jmp	.L3
+.L4:
 
+	leal	1(%eax), %edx
+	movw	%dx, tty_pos
+	movzwl	%ax, %edx
+	movl	-16(%ebp), %eax
+	leal	1(%eax), %ecx
+	movl	%ecx, -16(%ebp)
+	movl	%eax, %ecx
+	movl	8(%ebp), %eax
+	addl	%ecx, %eax
+	movzbl	(%eax), %eax
+	movsbl	%al, %eax
 
-	pop %ebp
+	movl	%edx, 4(%esp)
+	movl	%eax, (%esp)
+	call	tty_putchar
+.L3:
+	movl	-16(%ebp), %eax
+	cmpl	-12(%ebp), %eax
+	jl	.L4
+
+	movl %ebp, %esp
+	popl %ebp
 	ret
-
 
 .global	tty_strlen    #int strlen(const char *string);
 tty_strlen:
