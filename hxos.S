@@ -24,5 +24,10 @@ kernel_init:
 	call tty_print
 	popl %edx
 
+	pushl $test_str
+	call tty_print
+	popl %edx
+
+
 .Lhang:
 	jmp .Lhang

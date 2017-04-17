@@ -59,40 +59,41 @@ tty_putchar:
 tty_print:
 	pushl %ebp
 	movl %esp, %ebp
-
 	subl $40, %esp
-	movl $0, -16(%ebp)
-	movl 8(%ebp), %eax
 
+	movl $0, -16(%ebp)     # current string pos
+
+	movl 8(%ebp), %eax     # string pointer
 	movl %eax, (%esp)
 	call tty_strlen
 	movl %eax, -12(%ebp)   # save strlen at -12(%ebp)
 
-	jmp	.L3
-.L4:
+	jmp	.tty_print_check
+
+.tty_print_loop:
+	movl 8(%ebp), %eax   # load string
+	movl -16(%ebp), %ecx   # increment string counter
+	addl %ecx, %eax
+	movzbl (%eax), %eax
+
+	movzwl tty_pos, %edx
+
+	movl %edx, 4(%esp)   # tty_pos
+	movl %eax, (%esp)    # char
+	call tty_putchar
 
 	movl tty_pos, %eax   # increment tty_pos
 	leal 1(%eax), %edx
 	movw %dx, tty_pos
 
-	movzwl	%ax, %edx
-	movl	-16(%ebp), %eax
-	leal	1(%eax), %ecx
-	movl	%ecx, -16(%ebp)
-	movl	%eax, %ecx
-	movl	8(%ebp), %eax
-	addl	%ecx, %eax
-	movzbl	(%eax), %eax
-	movsbl	%al, %eax
+	movl -16(%ebp), %eax    # inc current string pos
+	leal 1(%eax), %ecx
+	movl %ecx, -16(%ebp)
 
-	movl	%edx, 4(%esp)
-	movl	%eax, (%esp)
-	call	tty_putchar
-.L3:
-
+.tty_print_check:
 	movl -16(%ebp), %eax
 	cmpl -12(%ebp), %eax
-	jl .L4
+	jl .tty_print_loop
 
 	movl %ebp, %esp
 	popl %ebp
