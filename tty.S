@@ -71,8 +71,10 @@ tty_print:
 	jmp	.L3
 .L4:
 
-	leal	1(%eax), %edx
-	movw	%dx, tty_pos
+	movl tty_pos, %eax   # increment tty_pos
+	leal 1(%eax), %edx
+	movw %dx, tty_pos
+
 	movzwl	%ax, %edx
 	movl	-16(%ebp), %eax
 	leal	1(%eax), %ecx
@@ -87,9 +89,10 @@ tty_print:
 	movl	%eax, (%esp)
 	call	tty_putchar
 .L3:
-	movl	-16(%ebp), %eax
-	cmpl	-12(%ebp), %eax
-	jl	.L4
+
+	movl -16(%ebp), %eax
+	cmpl -12(%ebp), %eax
+	jl .L4
 
 	movl %ebp, %esp
 	popl %ebp
