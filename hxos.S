@@ -1,13 +1,13 @@
 .section .data
 
 test_str:
-	.asciz "Testing Framebuffer."
+	.asciz "Test Line 1."
 
 test_str2:
-	.asciz "And another thing.\n"
+	.asciz "Test Line 2.\nSplit 2\n"
 
 test_str3:
-	.asciz "Mid split.\nNewline.\n"
+	.asciz "Test Line 3.\nSplit 3\nSplit 3\nSplit 3\n"
 
 .section .text
 
@@ -29,6 +29,66 @@ kernel_init:
 	popl %edx
 
 	pushl $0x3E    #cyan/white
+	call tty_set_colors
+	popl %edx
+
+	pushl $test_str
+	call tty_print
+	popl %edx
+
+	pushl $test_str3
+	call tty_print
+	popl %edx
+
+	pushl $0x4E    #cyan/white
+	call tty_set_colors
+	popl %edx
+
+	pushl $test_str
+	call tty_print
+	popl %edx
+
+	pushl $test_str3
+	call tty_print
+	popl %edx
+
+	pushl $0x5E    #cyan/white
+	call tty_set_colors
+	popl %edx
+
+	pushl $test_str
+	call tty_print
+	popl %edx
+
+	pushl $test_str3
+	call tty_print
+	popl %edx
+
+	pushl $0x6D    #cyan/white
+	call tty_set_colors
+	popl %edx
+
+	pushl $test_str
+	call tty_print
+	popl %edx
+
+	pushl $test_str3
+	call tty_print
+	popl %edx
+
+	pushl $0x4D    #cyan/white
+	call tty_set_colors
+	popl %edx
+
+	pushl $test_str
+	call tty_print
+	popl %edx
+
+	pushl $test_str3
+	call tty_print
+	popl %edx
+
+	pushl $0x2E    #cyan/white
 	call tty_set_colors
 	popl %edx
 

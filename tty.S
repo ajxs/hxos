@@ -60,10 +60,20 @@ tty_newline:
 	xorl %edx, %edx
 	movw $FRAMEBUFFER_WIDTH, %bx
 	movw tty_pos, %ax
-	divw %bx                  # remainder in EDX
+	divw %bx                    # remainder in EDX
 
 	subw %dx, %bx
 
+	movb $0, %al
+	movb tty_col, %ah
+
+	movw %bx, %cx
+
+	movw $FRAMEBUFFER_ADDR, %di
+	addw tty_pos, %di            # ∵ tty_pos != byte pos
+	addw tty_pos, %di
+
+	rep stosw                    # clear remainder of line
 
 	addw tty_pos, %bx
 	movw %bx, tty_pos
