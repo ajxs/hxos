@@ -53,6 +53,25 @@ tty_putchar:
 	popl %ebp
 	ret
 
+tty_newline:
+	pushl %ebp
+	movl %esp, %ebp
+
+	xorl %edx, %edx
+	movw $FRAMEBUFFER_WIDTH, %bx
+	movw tty_pos, %ax
+	divw %bx                  # remainder in EDX
+
+	subw %dx, %bx
+
+
+	addw tty_pos, %bx
+	movw %bx, tty_pos
+
+	movl %ebp, %esp
+	popl %ebp
+	ret
+
 
 .global tty_print
 .type tty_print, @function
@@ -68,7 +87,7 @@ tty_print:
 	call tty_strlen
 	movl %eax, -12(%ebp)   # save strlen at -12(%ebp)
 
-	jmp	.tty_print_check
+	jmp .tty_print_check
 
 .tty_print_loop:
 	movl 8(%ebp), %eax   # load string
@@ -76,8 +95,15 @@ tty_print:
 	addl %ecx, %eax
 	movzbl (%eax), %eax
 
-	movzwl tty_pos, %edx
+	cmpl $0xA, %eax         # check for newline
+	jne .tty_print_putchar
 
+.tty_print_newline:
+	call tty_newline
+	jmp .tty_print_inc   # We don't want to increment tty_pos
+
+.tty_print_putchar:
+	movzwl tty_pos, %edx
 	movl %edx, 4(%esp)   # tty_pos
 	movl %eax, (%esp)    # char
 	call tty_putchar
@@ -86,6 +112,7 @@ tty_print:
 	leal 1(%eax), %edx
 	movw %dx, tty_pos
 
+.tty_print_inc:
 	movl -16(%ebp), %eax    # inc current string pos
 	leal 1(%eax), %ecx
 	movl %ecx, -16(%ebp)
@@ -99,7 +126,7 @@ tty_print:
 	popl %ebp
 	ret
 
-.global	tty_strlen    #int strlen(const char *string);
+.global tty_strlen    #int strlen(const char *string);
 tty_strlen:
 	push %edi
 	sub %ecx, %ecx
