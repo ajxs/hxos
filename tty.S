@@ -40,12 +40,12 @@ tty_putchar:
 	pushl %ebp
 	movl %esp, %ebp
 
-	movl 12(%ebp), %edx                    #pos
-	addl %edx, %edx                        #double pos to take 16bit width into account
+	movl 12(%ebp), %edx                  #pos
+	addl %edx, %edx                      #double pos to take 16bit width into account
 	addl $FRAMEBUFFER_ADDR, %edx
 
-	movzbw 8(%ebp), %ax                    #move byte and zero remaining bits
-	movsbw tty_col, %cx                    #create VGA entry from existing tty_col
+	movzbw 8(%ebp), %ax                  #move byte and zero remaining bits
+	movsbw tty_col, %cx                  #create VGA entry from existing tty_col
 	shlw $0x8, %cx
 	orw %cx, %ax
 
@@ -53,6 +53,7 @@ tty_putchar:
 	popl %ebp
 	ret
 
+.type tty_newline, @function
 tty_newline:
 	pushl %ebp
 	movl %esp, %ebp
@@ -60,32 +61,31 @@ tty_newline:
 	xorl %edx, %edx
 	movw $FRAMEBUFFER_WIDTH, %bx
 	movw tty_pos, %ax
-	divw %bx                    # remainder in EDX
+	divw %bx                             # remainder in EDX
 
 	subw %dx, %bx
 	jmp .tty_newline_fill
 
-.tty_newline_reset:
+.tty_newline_reset:                    # reset tty_pos to 0
 	movw $0, tty_pos
 	jmp .tty_newline_exit
 
 .tty_newline_fill:
-
 	movb $0, %al
 	movb tty_col, %ah
 
 	movw %bx, %cx
 
 	movw $FRAMEBUFFER_ADDR, %di
-	addw tty_pos, %di            # ∵ tty_pos != byte pos
+	addw tty_pos, %di                    # ∵ tty_pos != byte pos
 	addw tty_pos, %di
 
-	rep stosw                    # clear remainder of line
+	rep stosw                            # clear remainder of line
 
 	addw tty_pos, %bx
 	movw %bx, tty_pos
 
-	cmpw $FRAMEBUFFER_LENGTH, %bx
+	cmpw $FRAMEBUFFER_LENGTH, %bx        # check tty_pos against 0
 	je .tty_newline_reset
 
 .tty_newline_exit:
@@ -101,12 +101,12 @@ tty_print:
 	movl %esp, %ebp
 	subl $40, %esp
 
-	movl $0, -16(%ebp)     # current string pos
+	movl $0, -16(%ebp)                   # current string pos
 
-	movl 8(%ebp), %eax     # string pointer
+	movl 8(%ebp), %eax                   # string ptr
 	movl %eax, (%esp)
 	call tty_strlen
-	movl %eax, -12(%ebp)   # save strlen at -12(%ebp)
+	movl %eax, -12(%ebp)                 # save strlen at -12(%ebp)
 
 	jmp .tty_print_check
 
@@ -115,33 +115,33 @@ tty_print:
 	jmp .tty_print_inc
 
 .tty_print_loop:
-	movl 8(%ebp), %eax   # load string
-	movl -16(%ebp), %ecx   # increment string counter
+	movl 8(%ebp), %eax                   # load ptr to start of string ( arg )
+	movl -16(%ebp), %ecx                 # increment string counter
 	addl %ecx, %eax
 	movzbl (%eax), %eax
 
-	cmpl $0xA, %eax         # check for newline
+	cmpl $0xA, %eax                      # check for newline
 	jne .tty_print_putchar
 
 .tty_print_newline:
 	call tty_newline
-	jmp .tty_print_inc   # We don't want to increment tty_pos
+	jmp .tty_print_inc                   # If \n don't increment tty_pos
 
 .tty_print_putchar:
 	movzwl tty_pos, %edx
-	movl %edx, 4(%esp)   # tty_pos
-	movl %eax, (%esp)    # char
+	movl %edx, 4(%esp)                   # tty_pos
+	movl %eax, (%esp)                    # char
 	call tty_putchar
 
-	movl tty_pos, %eax   # increment tty_pos
+	movl tty_pos, %eax                   # increment tty_pos
 	leal 1(%eax), %edx
 	movw %dx, tty_pos
 
-	cmpw $FRAMEBUFFER_LENGTH, %dx
+	cmpw $FRAMEBUFFER_LENGTH, %dx        # check tty_pos against 0
 	je .tty_print_reset
 
 .tty_print_inc:
-	movl -16(%ebp), %eax    # inc current string pos
+	movl -16(%ebp), %eax                 # inc current string pos
 	leal 1(%eax), %ecx
 	movl %ecx, -16(%ebp)
 
@@ -154,7 +154,7 @@ tty_print:
 	popl %ebp
 	ret
 
-.global tty_strlen    #int strlen(const char *string);
+.global tty_strlen                    #int strlen(const char *string);
 tty_strlen:
 	push %edi
 	sub %ecx, %ecx
@@ -162,7 +162,7 @@ tty_strlen:
 	not %ecx
 	sub %al, %al
 	cld
-	repne scasb        #rep not equal scan strng byte
+	repne scasb                         #rep not equal scan strng byte
 	not %ecx
 	pop %edi
 	leal -1(%ecx), %eax

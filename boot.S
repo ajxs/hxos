@@ -26,6 +26,7 @@ multiboot_init:
 	cmpl $MULTIBOOT_BOOTLOADER_MAGIC, %eax
 	jne multiboot_fail
 
+	movl %ebp, %esp
 	pop %ebp
 	ret
 
@@ -34,6 +35,7 @@ multiboot_fail:
 	pushl $0x4F    #red/white
 	call tty_set_colors
 	call tty_clear
+	popl %edx
 	cli
 	hlt
 
