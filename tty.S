@@ -133,18 +133,13 @@ tty_print:
 	movl %eax, (%esp)                    # char
 	call tty_putchar
 
-	movl tty_pos, %eax                   # increment tty_pos
-	leal 1(%eax), %edx
-	movw %dx, tty_pos
+	incw tty_pos
 
 	cmpw $FRAMEBUFFER_LENGTH, %dx        # check tty_pos against 0
 	je .tty_print_reset
 
 .tty_print_inc:
-	#movl -16(%ebp), %eax                 # inc current string pos
-	#leal 1(%eax), %ecx
-	#movl %ecx, -16(%ebp)
-	incw -16(%ebp)
+	incw -16(%ebp)                       # inc current string pos
 
 .tty_print_check:
 	movl -16(%ebp), %eax
