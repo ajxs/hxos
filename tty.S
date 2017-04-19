@@ -10,6 +10,7 @@ tty_col:
 
 .section .text
 
+# void tty_clear();
 .global tty_clear
 .type tty_clear, @function
 tty_clear:
@@ -20,15 +21,14 @@ tty_clear:
 	rep stosw
 	ret
 
+# void tty_set_colors(uint16_t c);
 .global tty_set_colors
 .type tty_set_colors, @function
 tty_set_colors:
 	push %ebp
 	movl %esp, %ebp
-
 	movb 0x8(%ebp), %ah
 	mov %ah, tty_col
-
 	pop %ebp
 	ret
 
@@ -53,6 +53,7 @@ tty_putchar:
 	popl %ebp
 	ret
 
+# void tty_newline();
 .type tty_newline, @function
 tty_newline:
 	pushl %ebp
@@ -93,7 +94,7 @@ tty_newline:
 	popl %ebp
 	ret
 
-
+# void tty_print(const char *c);
 .global tty_print
 .type tty_print, @function
 tty_print:
@@ -133,7 +134,7 @@ tty_print:
 	movl %eax, (%esp)                    # char
 	call tty_putchar
 
-	incw tty_pos                          # increment tty_pos
+	incw tty_pos                         # increment tty_pos
 
 	cmpw $FRAMEBUFFER_LENGTH, %dx        # check tty_pos against buffer length
 	je .tty_print_reset
@@ -150,6 +151,7 @@ tty_print:
 	popl %ebp
 	ret
 
+# int tty_strlen(const char *c);
 .global tty_strlen                    #int strlen(const char *string);
 tty_strlen:
 	push %edi
