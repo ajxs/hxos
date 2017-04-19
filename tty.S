@@ -133,9 +133,9 @@ tty_print:
 	movl %eax, (%esp)                    # char
 	call tty_putchar
 
-	incw tty_pos
+	incw tty_pos                          # increment tty_pos
 
-	cmpw $FRAMEBUFFER_LENGTH, %dx        # check tty_pos against 0
+	cmpw $FRAMEBUFFER_LENGTH, %dx        # check tty_pos against buffer length
 	je .tty_print_reset
 
 .tty_print_inc:
