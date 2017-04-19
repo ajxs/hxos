@@ -52,7 +52,7 @@ kernel_init:
 	call tty_print
 	popl %edx
 
-	pushl $0x5E    #cyan/white
+	pushl $0x5E    #purple/yellow
 	call tty_set_colors
 	popl %edx
 
@@ -64,7 +64,7 @@ kernel_init:
 	call tty_print
 	popl %edx
 
-	pushl $0x6D    #cyan/white
+	pushl $0x6D    #brown/pink
 	call tty_set_colors
 	popl %edx
 
@@ -76,7 +76,7 @@ kernel_init:
 	call tty_print
 	popl %edx
 
-	pushl $0x4D    #cyan/white
+	pushl $0x4D    #brown/pink
 	call tty_set_colors
 	popl %edx
 
@@ -88,7 +88,7 @@ kernel_init:
 	call tty_print
 	popl %edx
 
-	pushl $0x2E    #cyan/white
+	pushl $0x2E    #green
 	call tty_set_colors
 	popl %edx
 
@@ -97,6 +97,14 @@ kernel_init:
 	popl %edx
 
 	pushl $test_str3
+	call tty_print
+	popl %edx
+
+	pushl $0x5E    #purple/yellow
+	call tty_set_colors
+	popl %edx
+
+	pushl $test_str
 	call tty_print
 	popl %edx
 

@@ -63,6 +63,13 @@ tty_newline:
 	divw %bx                    # remainder in EDX
 
 	subw %dx, %bx
+	jmp .tty_newline_fill
+
+.tty_newline_reset:
+	movw $0, tty_pos
+	jmp .tty_newline_exit
+
+.tty_newline_fill:
 
 	movb $0, %al
 	movb tty_col, %ah
@@ -78,6 +85,10 @@ tty_newline:
 	addw tty_pos, %bx
 	movw %bx, tty_pos
 
+	cmpw $FRAMEBUFFER_LENGTH, %bx
+	je .tty_newline_reset
+
+.tty_newline_exit:
 	movl %ebp, %esp
 	popl %ebp
 	ret
@@ -98,6 +109,10 @@ tty_print:
 	movl %eax, -12(%ebp)   # save strlen at -12(%ebp)
 
 	jmp .tty_print_check
+
+.tty_print_reset:
+	movw $0, tty_pos
+	jmp .tty_print_inc
 
 .tty_print_loop:
 	movl 8(%ebp), %eax   # load string
@@ -121,6 +136,9 @@ tty_print:
 	movl tty_pos, %eax   # increment tty_pos
 	leal 1(%eax), %edx
 	movw %dx, tty_pos
+
+	cmpw $FRAMEBUFFER_LENGTH, %dx
+	je .tty_print_reset
 
 .tty_print_inc:
 	movl -16(%ebp), %eax    # inc current string pos
