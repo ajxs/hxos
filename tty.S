@@ -76,7 +76,7 @@ tty_newline:
 
 	movw %bx, %cx
 
-	movw $FRAMEBUFFER_ADDR, %di
+	movl $FRAMEBUFFER_ADDR, %edi
 	addw tty_pos, %di                    # ∵ tty_pos != byte pos
 	addw tty_pos, %di
 
@@ -141,9 +141,10 @@ tty_print:
 	je .tty_print_reset
 
 .tty_print_inc:
-	movl -16(%ebp), %eax                 # inc current string pos
-	leal 1(%eax), %ecx
-	movl %ecx, -16(%ebp)
+	#movl -16(%ebp), %eax                 # inc current string pos
+	#leal 1(%eax), %ecx
+	#movl %ecx, -16(%ebp)
+	incw -16(%ebp)
 
 .tty_print_check:
 	movl -16(%ebp), %eax
