@@ -2,14 +2,15 @@
 
 .section .data
 
-test_str:
-	.asciz "Test Line 1."
+string_main_init:
+	.asciz "kernel_main: Kernel init successful!...\n"
+string_main_next:
+	.asciz "kernel_main: Halted awaiting useful instructions!...\n"
+string_pmode_init:
+	.asciz "protected_mode_init: beginning pmode init...\n"
+string_pmode_success:
+	.asciz "protected_mode_init: pmode successfully initialised...\n"
 
-test_str2:
-	.asciz "Test Line 2.\nSplit 2\n"
-
-test_str3:
-	.asciz "Test Line 3.\nSplit 3\nSplit 3\nSplit 3\n"
 
 .section .text
 
@@ -18,6 +19,10 @@ test_str3:
 protected_mode_init:
 	push %ebp
 	movl %esp, %ebp
+
+	pushl $string_pmode_init
+	call tty_print
+	popl %edx
 
 	movl %cr0, %eax
 	orl $0x1, %eax
@@ -36,6 +41,10 @@ protected_mode_init:
 
 	movl $stack_top, %esp
 
+	pushl $string_pmode_success
+	call tty_print
+	popl %edx
+
 	movl %ebp, %esp
 	popl %ebp
 	ret
@@ -47,97 +56,19 @@ kernel_main:
 	push %ebp
 	movl %esp, %ebp
 
-	pushl $0x3F    #cyan/white
+	pushl $0x5F                # purple/white
 	call tty_set_colors
 	popl %edx
 
-	call tty_clear
-
-	pushl $test_str
+	pushl $string_main_init
 	call tty_print
 	popl %edx
 
-	pushl $test_str2
-	call tty_print
-	popl %edx
-
-	pushl $0x3E    #cyan/white
+	pushl $0x6E                # black/white
 	call tty_set_colors
 	popl %edx
 
-	pushl $test_str
-	call tty_print
-	popl %edx
-
-	pushl $test_str3
-	call tty_print
-	popl %edx
-
-	pushl $0x4E    #cyan/white
-	call tty_set_colors
-	popl %edx
-
-	pushl $test_str
-	call tty_print
-	popl %edx
-
-	pushl $test_str3
-	call tty_print
-	popl %edx
-
-	pushl $0x5E    #purple/yellow
-	call tty_set_colors
-	popl %edx
-
-	pushl $test_str
-	call tty_print
-	popl %edx
-
-	pushl $test_str3
-	call tty_print
-	popl %edx
-
-	pushl $0x6D    #brown/pink
-	call tty_set_colors
-	popl %edx
-
-	pushl $test_str
-	call tty_print
-	popl %edx
-
-	pushl $test_str3
-	call tty_print
-	popl %edx
-
-	pushl $0x4D    #brown/pink
-	call tty_set_colors
-	popl %edx
-
-	pushl $test_str
-	call tty_print
-	popl %edx
-
-	pushl $test_str3
-	call tty_print
-	popl %edx
-
-	pushl $0x2E    #green
-	call tty_set_colors
-	popl %edx
-
-	pushl $test_str
-	call tty_print
-	popl %edx
-
-	pushl $test_str3
-	call tty_print
-	popl %edx
-
-	pushl $0x5E    #purple/yellow
-	call tty_set_colors
-	popl %edx
-
-	pushl $test_str
+	pushl $string_main_next
 	call tty_print
 	popl %edx
 
