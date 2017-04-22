@@ -1,5 +1,5 @@
 # HXOS
-Experiments in x86 Kernel dev, using only ASM.
+Experiments in baremetal x86 Kernel dev, written entirely in GNU ASM.
 
 ## Build
 HXOS is currently only configured to be built under Linux.
