@@ -8,7 +8,7 @@ LDFLAGS=-ffreestanding -O2 -nostdlib
 
 LIBS=-lgcc
 
-AS_SOURCES=hxos.S tty.S boot.S kernel.S
+AS_SOURCES=hxos.S tty.S boot.S kernel.S gdt.S
 OBJECTS+=$(AS_SOURCES:.S=.o)
 
 BINARY=hxos.bin

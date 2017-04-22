@@ -44,11 +44,17 @@ multiboot_fail:
 .type _start, @function
 _start:
 	cli
-
 	movl $stack_top, %esp
 
 	push %ebx
 	push %eax
 	call multiboot_init
+
+	pushl $0x2F    #green/white
+	call tty_set_colors
+	call tty_clear
+	popl %edx
+
+	call gdt_init
 
 	jmp kernel_init
