@@ -137,7 +137,7 @@ tty_print:
 
 .tty_print_newline:
 	call tty_newline
-	jmp .tty_print_inc                   # If \n don't increment tty_pos
+	jmp .tty_print_check                   # If \n don't increment tty_pos
 
 .tty_print_putchar:
 	movzwl tty_pos, %edx
@@ -148,13 +148,11 @@ tty_print:
 	incw tty_pos                         # increment tty_pos
 
 	cmpw $FRAMEBUFFER_LENGTH, %dx        # check tty_pos against buffer length
-	jne .tty_print_inc
+	jne .tty_print_check
 	call tty_shift                       # if equal, shift
 
-.tty_print_inc:
-	incw -16(%ebp)                       # inc current string pos
-
 .tty_print_check:
+	incw -16(%ebp)                       # inc current string pos
 	movl -16(%ebp), %eax
 	cmpl -12(%ebp), %eax
 	jl .tty_print_loop
