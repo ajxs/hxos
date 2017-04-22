@@ -19,6 +19,7 @@ tty_clear:
 	movl $FRAMEBUFFER_LENGTH, %ecx
 	movl $FRAMEBUFFER_ADDR, %edi
 	rep stosw
+	movw $0, tty_pos
 	ret
 
 # void tty_set_colors(uint16_t c);
@@ -33,7 +34,6 @@ tty_set_colors:
 	ret
 
 # void tty_putchar(uint8_t c, uint8_t pos);
-# @TODO: improve this - even though it matches gcc -S output... investigate
 .global tty_putchar
 .type tty_putchar, @function
 tty_putchar:
@@ -53,6 +53,24 @@ tty_putchar:
 	popl %ebp
 	ret
 
+
+# void tty_shift();
+.type tty_shift, @function
+tty_shift:
+	pushl %ebp
+	movl %esp, %ebp
+
+	movl $FRAMEBUFFER_LENGTH-FRAMEBUFFER_WIDTH, %ecx
+	movl $FRAMEBUFFER_ADDR, %edi
+.tty_shift_loop:
+	movl FRAMEBUFFER_WIDTH*2(%edi), %eax
+	stosw
+	loop .tty_shift_loop                 # copy framebuffer up one line
+
+	movl %ebp, %esp
+	popl %ebp
+	ret
+
 # void tty_newline();
 .type tty_newline, @function
 tty_newline:
@@ -66,10 +84,6 @@ tty_newline:
 
 	subw %dx, %bx
 	jmp .tty_newline_fill
-
-.tty_newline_reset:                    # reset tty_pos to 0
-	movw $0, tty_pos
-	jmp .tty_newline_exit
 
 .tty_newline_fill:
 	movb $0, %al
@@ -87,7 +101,8 @@ tty_newline:
 	movw %bx, tty_pos
 
 	cmpw $FRAMEBUFFER_LENGTH, %bx        # check tty_pos against 0
-	je .tty_newline_reset
+	jne .tty_newline_exit
+	call tty_shift                       # if equal, shift
 
 .tty_newline_exit:
 	movl %ebp, %esp
@@ -111,10 +126,6 @@ tty_print:
 
 	jmp .tty_print_check
 
-.tty_print_reset:
-	movw $0, tty_pos
-	jmp .tty_print_inc
-
 .tty_print_loop:
 	movl 8(%ebp), %eax                   # load ptr to start of string ( arg )
 	movl -16(%ebp), %ecx                 # increment string counter
@@ -137,7 +148,8 @@ tty_print:
 	incw tty_pos                         # increment tty_pos
 
 	cmpw $FRAMEBUFFER_LENGTH, %dx        # check tty_pos against buffer length
-	je .tty_print_reset
+	jne .tty_print_inc
+	call tty_shift                       # if equal, shift
 
 .tty_print_inc:
 	incw -16(%ebp)                       # inc current string pos
@@ -150,6 +162,7 @@ tty_print:
 	movl %ebp, %esp
 	popl %ebp
 	ret
+
 
 # int tty_strlen(const char *c);
 .global tty_strlen                    #int strlen(const char *string);

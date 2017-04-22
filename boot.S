@@ -50,7 +50,7 @@ _start:
 	push %eax
 	call multiboot_init
 
-	pushl $0x2F    #green/white
+	pushl $0x0F    #black/white
 	call tty_set_colors
 	call tty_clear
 	popl %edx

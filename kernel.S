@@ -22,9 +22,9 @@ protected_mode_init:
 	movl %cr0, %eax
 	orl $0x1, %eax
 	movl %eax, %cr0
-	ljmp $0x8, $.PModeMain
+	ljmp $0x8, $.protected_mode_init_reload
 
-.PModeMain:
+.protected_mode_init_reload:
 	sti
 
 	mov $0x10, %eax              # reload segment registers
