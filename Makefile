@@ -20,9 +20,6 @@ all: $(BINARY)
 $(BINARY): $(OBJECTS)
 	$(CC) -g3 -T linker.ld -o $(BINARY) $(LDFLAGS) $(OBJECTS) $(LIBS)
 
-%.o: %.c
-	$(CC) $(INCLUDE_PARAMS) -g -c $< -o $@ $(CFLAGS)
-
 %.o: %.S
 	$(CC) $(INCLUDE_PARAMS) -g -c $< -o $@ $(CFLAGS)
 

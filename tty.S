@@ -14,12 +14,14 @@ tty_col:
 .global tty_clear
 .type tty_clear, @function
 tty_clear:
+	pushl %edi                          # preserve EDI
 	movb $0, %al
 	movb tty_col, %ah
 	movl $FRAMEBUFFER_LENGTH, %ecx
 	movl $FRAMEBUFFER_ADDR, %edi
 	rep stosw
 	movw $0, tty_pos
+	popl %edi
 	ret
 
 # void tty_set_colors(uint16_t c);
@@ -58,6 +60,7 @@ tty_putchar:
 .type tty_shift, @function
 tty_shift:
 	pushl %ebp
+	pushl %edi
 	movl %esp, %ebp
 
 	movl $FRAMEBUFFER_LENGTH-FRAMEBUFFER_WIDTH, %ecx
@@ -68,6 +71,7 @@ tty_shift:
 	loop .tty_shift_loop                 # copy framebuffer up one line
 
 	movl %ebp, %esp
+	popl %edi
 	popl %ebp
 	ret
 
@@ -75,6 +79,7 @@ tty_shift:
 .type tty_newline, @function
 tty_newline:
 	pushl %ebp
+	pushl %edi
 	movl %esp, %ebp
 
 	xorl %edx, %edx
@@ -106,6 +111,7 @@ tty_newline:
 
 .tty_newline_exit:
 	movl %ebp, %esp
+	popl %edi
 	popl %ebp
 	ret
 
