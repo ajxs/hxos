@@ -6,11 +6,7 @@
 #ifndef MULTIBOOT_ASM_H
 #define MULTIBOOT_ASM_H 1
 
-#ifdef __ELF__
 # define MULTIBOOT_HEADER_FLAGS 0x00000003
-#else
-# define MULTIBOOT_HEADER_FLAGS 0x00010003
-#endif
 
 #define MULTIBOOT_SEARCH 8192                    /* How many bytes from the start of the file we search for the header. */
 #define MULTIBOOT_HEADER_MAGIC 0x1BADB002        /* The magic field should contain this. */

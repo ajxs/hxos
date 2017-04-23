@@ -2,6 +2,11 @@
 
 string_kernel_init:
 	.asciz "kernel_init: beginning Kernel init...\n"
+string_main_init:
+	.asciz "kernel_main: Kernel init successful!...\n"
+string_main_next:
+	.asciz "kernel_main: Halted awaiting useful instructions!...\n"
+
 
 .section .text
 
@@ -23,3 +28,29 @@ kernel_init:
 
 	cli
 	hlt
+
+.global kernel_main
+.type kernel_main, @function
+kernel_main:
+	push %ebp
+	movl %esp, %ebp
+
+	pushl $0x5F                # purple/white
+	call tty_set_colors
+	popl %edx
+
+	pushl $string_main_init
+	call tty_print
+	popl %edx
+
+	pushl $0x6E                # black/white
+	call tty_set_colors
+	popl %edx
+
+	pushl $string_main_next
+	call tty_print
+	popl %edx
+
+	movl %ebp, %esp
+	popl %ebp
+	ret
