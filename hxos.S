@@ -23,11 +23,16 @@ kernel_init:
 	call protected_mode_init
 	call kernel_main
 
+	#cleanup state here
 	movl %ebp, %esp
 	popl %ebp
 
 	cli
 	hlt
+
+.global kernel_hang
+kernel_hang:
+	jmp kernel_hang
 
 .global kernel_main
 .type kernel_main, @function
