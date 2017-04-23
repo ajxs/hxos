@@ -1,6 +1,6 @@
 CC=i686-elf-gcc
 
-INCLUDES=./
+INCLUDES=include
 INCLUDE_PARAMS=$(foreach d, $(INCLUDES), -I$d)
 
 CFLAGS=-std=gnu99 -ffreestanding -O2 -Wall -Wextra
