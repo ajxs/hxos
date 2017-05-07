@@ -60,8 +60,8 @@ tty_putchar:
 .type tty_shift, @function
 tty_shift:
 	pushl %ebp
-	pushl %edi
 	movl %esp, %ebp
+	pushl %edi
 
 	movl $FRAMEBUFFER_LENGTH-FRAMEBUFFER_WIDTH, %ecx
 	movl $FRAMEBUFFER_ADDR, %edi
@@ -79,8 +79,8 @@ tty_shift:
 .type tty_newline, @function
 tty_newline:
 	pushl %ebp
-	pushl %edi
 	movl %esp, %ebp
+	pushl %edi
 
 	xorl %edx, %edx
 	movw $FRAMEBUFFER_WIDTH, %bx
@@ -110,9 +110,8 @@ tty_newline:
 	call tty_shift                       # if equal, shift
 
 .tty_newline_exit:
-	movl %ebp, %esp
 	popl %edi
-	popl %ebp
+	leave
 	ret
 
 # void tty_print(const char *c);
@@ -165,8 +164,7 @@ tty_print:
 	cmpl -12(%ebp), %eax
 	jl .tty_print_loop
 
-	movl %ebp, %esp
-	popl %ebp
+	leave
 	ret
 
 
