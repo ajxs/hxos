@@ -46,8 +46,7 @@ multiboot_init:
 	call tty_print
 	popl %edx
 
-	movl %ebp, %esp
-	pop %ebp
+	leave
 	ret
 
 .type multiboot_fail, @function

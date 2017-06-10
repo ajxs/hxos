@@ -28,11 +28,15 @@ tty_clear:
 .global tty_set_colors
 .type tty_set_colors, @function
 tty_set_colors:
-	push %ebp
+	pushl %ebp
 	movl %esp, %ebp
+	pushl %eax
+
 	movb 0x8(%ebp), %ah
 	mov %ah, tty_col
-	pop %ebp
+
+	popl %eax
+	leave
 	ret
 
 # void tty_putchar(uint8_t c, uint8_t pos);
@@ -41,6 +45,7 @@ tty_set_colors:
 tty_putchar:
 	pushl %ebp
 	movl %esp, %ebp
+	pushl %edx
 
 	movl 12(%ebp), %edx                  #pos
 	addl %edx, %edx                      #double pos to take 16bit width into account
@@ -52,7 +57,9 @@ tty_putchar:
 	orw %cx, %ax
 
 	movw %ax, (%edx)
-	popl %ebp
+
+	popl %edx
+	leave
 	ret
 
 
@@ -70,9 +77,8 @@ tty_shift:
 	stosw
 	loop .tty_shift_loop                 # copy framebuffer up one line
 
-	movl %ebp, %esp
 	popl %edi
-	popl %ebp
+	leave
 	ret
 
 # void tty_newline();
@@ -81,6 +87,7 @@ tty_newline:
 	pushl %ebp
 	movl %esp, %ebp
 	pushl %edi
+	pushl %ebx
 
 	xorl %edx, %edx
 	movw $FRAMEBUFFER_WIDTH, %bx
@@ -110,6 +117,7 @@ tty_newline:
 	call tty_shift                       # if equal, shift
 
 .tty_newline_exit:
+	popl %ebx
 	popl %edi
 	leave
 	ret
@@ -120,6 +128,7 @@ tty_newline:
 tty_print:
 	pushl %ebp
 	movl %esp, %ebp
+
 	subl $40, %esp
 
 	movl $0, -16(%ebp)                   # current string pos
@@ -172,6 +181,7 @@ tty_print:
 .global tty_strlen                    #int strlen(const char *string);
 tty_strlen:
 	push %edi
+
 	sub %ecx, %ecx
 	mov 0x8(%esp), %edi
 	not %ecx
@@ -179,6 +189,7 @@ tty_strlen:
 	cld
 	repne scasb                         #rep not equal scan strng byte
 	not %ecx
+
 	pop %edi
 	leal -1(%ecx), %eax
 	ret

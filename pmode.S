@@ -38,6 +38,5 @@ protected_mode_init:
 	call tty_print
 	popl %edx
 
-	movl %ebp, %esp
-	popl %ebp
+	leave
 	ret

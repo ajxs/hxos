@@ -23,10 +23,7 @@ kernel_init:
 	call protected_mode_init
 	call kernel_main
 
-	#cleanup state here
-	movl %ebp, %esp
-	popl %ebp
-
+	leave                      # cleanup state here
 	cli
 	hlt
 
@@ -56,6 +53,5 @@ kernel_main:
 	call tty_print
 	popl %edx
 
-	movl %ebp, %esp
-	popl %ebp
+	leave
 	ret

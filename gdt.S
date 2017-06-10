@@ -73,6 +73,5 @@ gdt_init_reload_cs:
 	mov %ax, %gs
 	mov %ax, %ss
 
-	movl %ebp, %esp
-	popl %ebp
+	leave
 	ret
