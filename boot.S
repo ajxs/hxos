@@ -77,9 +77,6 @@ _start:
 	popl %edx
 
 	call multiboot_init
-	popl %edx
-	popl %edx
-	
 	call gdt_init
 
 	pushl $0x5F                # purple/white
