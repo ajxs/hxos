@@ -68,8 +68,8 @@ _start:
 	cli
 	movl $stack_top, %esp
 
-	push %ebx                  # push multiboot vars onto stack FIRST
-	push %eax
+	pushl %ebx                  # push multiboot vars onto stack FIRST
+	pushl %eax
 
 	pushl $0x0F                # black/white
 	call tty_set_colors
@@ -77,6 +77,9 @@ _start:
 	popl %edx
 
 	call multiboot_init
+	popl %edx
+	popl %edx
+	
 	call gdt_init
 
 	pushl $0x5F                # purple/white
