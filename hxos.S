@@ -34,9 +34,6 @@ kernel_hang:
 .global kernel_main
 .type kernel_main, @function
 kernel_main:
-	push %ebp
-	movl %esp, %ebp
-
 	pushl $0x5F                # purple/white
 	call tty_set_colors
 	popl %edx
@@ -53,5 +50,4 @@ kernel_main:
 	call tty_print
 	popl %edx
 
-	leave
 	ret

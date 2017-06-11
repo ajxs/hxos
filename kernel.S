@@ -10,9 +10,6 @@ string_pmode_success:
 .global protected_mode_init
 .type protected_mode_init, @function
 protected_mode_init:
-	push %ebp
-	movl %esp, %ebp
-
 	pushl $string_pmode_init
 	call tty_print
 	popl %edx
@@ -38,5 +35,4 @@ protected_mode_init:
 	call tty_print
 	popl %edx
 
-	leave
 	ret
