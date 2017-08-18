@@ -1,6 +1,8 @@
 #ifndef GDT_H
 #define GDT_H 1
 
+#define GDT_TABLE_SIZE 5
+
 #define GDT_ACCESS_PR(x)          ((x) << 7)        // http://wiki.osdev.org/GDT
 #define GDT_ACCESS_PRIV(x)        ((x) << 5)
 #define GDT_ACCESS_1(x)           ((x) << 4)
