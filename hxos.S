@@ -20,6 +20,8 @@ kernel_init:
 	call tty_print
 	popl %edx
 
+	call serial_init
+
 	call protected_mode_init
 	call kernel_main
 
