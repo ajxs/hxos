@@ -24,6 +24,7 @@ vga_text_clear:
 	popl %edi
 	ret
 
+
 # void vga_text_set_colours(uint16_t c);
 .global vga_text_set_colours
 .type vga_text_set_colours, @function
@@ -38,6 +39,7 @@ vga_text_set_colours:
 	popl %eax
 	leave
 	ret
+
 
 # void vga_text_putchar(uint8_t c, uint8_t pos);
 .global vga_text_putchar
@@ -78,6 +80,7 @@ vga_text_shift:
 	popl %edi
 	ret
 
+
 # void vga_text_newline();
 .type vga_text_newline, @function
 vga_text_newline:
@@ -115,6 +118,7 @@ vga_text_newline:
 	popl %ebx
 	popl %edi
 	ret
+
 
 # void vga_text_print(const char *c);
 .global vga_text_print

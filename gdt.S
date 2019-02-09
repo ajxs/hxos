@@ -43,14 +43,17 @@ gdt_misc2:
 	.byte 0
 gdt_end:
 
+
 .global gdt_table_test
 gdt_table_test:
 	.skip GDT_TABLE_SIZE*8
 gdt_table_test_end:
 
+
 gdt_ptr:
 	.word gdt_table - gdt_end        # table size
 	.long gdt_table                  # table offset
+
 
 .section .text
 
@@ -63,10 +66,9 @@ gdt_set_gate:
 	movl $gdt_table_test, %ecx
 	leal (%ecx, %eax, 8), %eax       # starting address of GDT descriptor in EAX
 
-
-
 	leave
 	ret
+
 
 .global gdt_init
 gdt_init:
@@ -77,7 +79,6 @@ gdt_init:
 	lgdt gdt_ptr
 	ljmp $0x8, $gdt_init_reload_cs
 gdt_init_reload_cs:
-
 	pushl $string_gdt_reload
 	call vga_text_print
 	popl %edx

@@ -49,6 +49,7 @@ multiboot_init:
 	leave
 	ret
 
+
 .type multiboot_fail, @function
 multiboot_fail:
 	pushl $0x4F    #red/white
@@ -61,6 +62,7 @@ multiboot_fail:
 
 	cli
 	hlt
+
 
 .global _start
 .type _start, @function
