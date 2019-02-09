@@ -71,7 +71,7 @@ gdt_set_gate:
 .global gdt_init
 gdt_init:
 	pushl $string_gdt_init
-	call tty_print
+	call vga_text_print
 	popl %edx
 
 	lgdt gdt_ptr
@@ -79,7 +79,7 @@ gdt_init:
 gdt_init_reload_cs:
 
 	pushl $string_gdt_reload
-	call tty_print
+	call vga_text_print
 	popl %edx
 
 	mov $0x10, %eax

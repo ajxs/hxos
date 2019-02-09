@@ -11,7 +11,7 @@ string_pmode_success:
 .type protected_mode_init, @function
 protected_mode_init:
 	pushl $string_pmode_init
-	call tty_print
+	call vga_text_print
 	popl %edx
 
 	movl %cr0, %eax
@@ -32,7 +32,7 @@ protected_mode_init:
 	movl $stack_top, %esp
 
 	pushl $string_pmode_success
-	call tty_print
+	call vga_text_print
 	popl %edx
 
 	ret

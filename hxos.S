@@ -17,7 +17,7 @@ kernel_init:
 	movl %esp, %ebp
 
 	pushl $string_kernel_init
-	call tty_print
+	call vga_text_print
 	popl %edx
 
 	call protected_mode_init
@@ -35,19 +35,19 @@ kernel_hang:
 .type kernel_main, @function
 kernel_main:
 	pushl $0x5F                # purple/white
-	call tty_set_colors
+	call vga_text_set_colours
 	popl %edx
 
 	pushl $string_main_init
-	call tty_print
+	call vga_text_print
 	popl %edx
 
 	pushl $0x6E                # black/white
-	call tty_set_colors
+	call vga_text_set_colours
 	popl %edx
 
 	pushl $string_main_next
-	call tty_print
+	call vga_text_print
 	popl %edx
 
 	ret

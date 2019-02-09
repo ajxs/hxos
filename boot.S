@@ -33,7 +33,7 @@ multiboot_init:
 	movl %esp, %ebp
 
 	pushl $string_boot_init
-	call tty_print
+	call vga_text_print
 	popl %edx
 
 	movl 0x8(%ebp), %eax        # Multiboot magic var
@@ -43,7 +43,7 @@ multiboot_init:
 	jne multiboot_fail
 
 	pushl $string_boot_success
-	call tty_print
+	call vga_text_print
 	popl %edx
 
 	leave
@@ -52,11 +52,11 @@ multiboot_init:
 .type multiboot_fail, @function
 multiboot_fail:
 	pushl $0x4F    #red/white
-	call tty_set_colors
+	call vga_text_set_colours
 	popl %edx
 
 	pushl $string_boot_fail
-	call tty_print
+	call vga_text_print
 	popl %edx
 
 	cli
@@ -72,23 +72,23 @@ _start:
 	pushl %eax
 
 	pushl $0x0F                # black/white
-	call tty_set_colors
-	call tty_clear
+	call vga_text_set_colours
+	call vga_text_clear
 	popl %edx
 
 	call multiboot_init
 	call gdt_init
 
 	pushl $0x5F                # purple/white
-	call tty_set_colors
+	call vga_text_set_colours
 	popl %edx
 
 	pushl $string_start_success
-	call tty_print
+	call vga_text_print
 	popl %edx
 
 	pushl $0x0F                # black/white
-	call tty_set_colors
+	call vga_text_set_colours
 	popl %edx
 
 	jmp kernel_init

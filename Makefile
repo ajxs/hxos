@@ -1,4 +1,4 @@
-CC=i686-elf-gcc
+CC=i386-elf-gcc
 
 INCLUDES=include
 INCLUDE_PARAMS=$(foreach d, $(INCLUDES), -I$d)
@@ -8,7 +8,7 @@ LDFLAGS=-ffreestanding -O2 -nostdlib
 
 LIBS=-lgcc
 
-AS_SOURCES=hxos.S tty.S boot.S pmode.S gdt.S
+AS_SOURCES=hxos.S vga.S boot.S pmode.S gdt.S
 OBJECTS+=$(AS_SOURCES:.S=.o)
 
 BINARY=hxos.bin
