@@ -1,4 +1,6 @@
-*.o
-*.bin
-*.sym
-old
+build
+*.log
+*.out
+*.swp
+*.swo
+
