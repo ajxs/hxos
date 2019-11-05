@@ -1,0 +1,6 @@
+build
+*.elf
+*.swp
+*.swo
+*.a
+*.o
