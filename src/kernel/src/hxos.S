@@ -21,6 +21,9 @@ string_main_next:
 
 .section .text
 
+/*
+ * kernel_init
+ */
 .global kernel_init
 .type kernel_init, @function
 kernel_init:
@@ -29,36 +32,47 @@ kernel_init:
 
 	pushl $string_kernel_init
 	call vga_text_print
-	popl %edx
+	addl $4, %esp
 
+	call gdt_init
 	call protected_mode_init
 	call kernel_main
 
-	leave                      # cleanup state here
-	cli
-	hlt
-
-.global kernel_hang
-kernel_hang:
+	# cleanup state here
+	leave
 	jmp kernel_hang
 
+
+/*
+ * kernel_hang
+ */
+.global kernel_hang
+kernel_hang:
+	cli
+	hlt
+	jmp kernel_hang
+
+
+/*
+ * kernel_main
+ */
 .global kernel_main
 .type kernel_main, @function
 kernel_main:
 	pushl $0x5F                # purple/white
 	call vga_text_set_colours
-	popl %edx
+	addl $4, %esp
 
 	pushl $string_main_init
 	call vga_text_print
-	popl %edx
+	addl $4, %esp
 
 	pushl $0x6E                # black/white
 	call vga_text_set_colours
-	popl %edx
+	addl $4, %esp
 
 	pushl $string_main_next
 	call vga_text_print
-	popl %edx
+	addl $4, %esp
 
 	ret

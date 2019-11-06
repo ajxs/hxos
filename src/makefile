@@ -4,6 +4,8 @@ ISO       := ${BUILD_DIR}/hxos.img
 KERNEL_DIR    := kernel
 KERNEL_BINARY := ${KERNEL_DIR}/build/hxos.elf
 
+SERIAL_FILENAME := serial.log
+
 QEMU_FLAGS :=                 \
 	-accel tcg,thread=single    \
 	-cpu core2duo               \
@@ -28,6 +30,15 @@ ${ISO}: ${KERNEL_BINARY} ${BUILD_DIR}
 clean:
 	make clean -C "${KERNEL_DIR}"
 	rm -rf ${BUILD_DIR}
+
+debug: ${ISO}
+	qemu-system-i386                   \
+		${QEMU_FLAGS}                    \
+		-drive format=raw,file=${ISO}    \
+		-d cpu_reset,int,guest_errors    \
+		-gdb tcp::1234                   \
+		-S                               \
+		-serial file:${SERIAL_FILENAME}
 
 emu: ${ISO}
 	qemu-system-i386                   \

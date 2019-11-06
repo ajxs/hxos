@@ -14,9 +14,9 @@
 
 .align 4096
 .section .multiboot
-.long MULTIBOOT_HEADER_MAGIC
-.long MULTIBOOT_HEADER_FLAGS
-.long MULTIBOOT_HEADER_CHECKSUM
+	.long MULTIBOOT_HEADER_MAGIC
+	.long MULTIBOOT_HEADER_FLAGS
+	.long MULTIBOOT_HEADER_CHECKSUM
 
 .align 4096
 .section .bss, "aw", @nobits
@@ -38,6 +38,9 @@ string_start_success:
 
 .section .text
 
+/*
+ * multiboot_init
+ */
 .type multiboot_init, @function
 multiboot_init:
 	push %ebp
@@ -45,7 +48,7 @@ multiboot_init:
 
 	pushl $string_boot_init
 	call vga_text_print
-	popl %edx
+	addl $4, %esp
 
 	movl 0x8(%ebp), %eax        # Multiboot magic var
 	movl 0x12(%ebp), %ebx       # pointer to MBI.
@@ -55,12 +58,15 @@ multiboot_init:
 
 	pushl $string_boot_success
 	call vga_text_print
-	popl %edx
+	addl $4, %esp
 
 	leave
 	ret
 
 
+/*
+ * multiboot_fail
+ */
 .type multiboot_fail, @function
 multiboot_fail:
 	pushl $0x4F    #red/white
@@ -71,37 +77,40 @@ multiboot_fail:
 	call vga_text_print
 	popl %edx
 
-	cli
-	hlt
+	# Hang here if this fails.
+	jmp kernel_hang
 
-
+/*
+ * _start
+ */
 .global _start
 .type _start, @function
 _start:
 	cli
+	# Setup stack.
 	movl $stack_top, %esp
 
-	pushl %ebx                  # push multiboot vars onto stack FIRST
+	# push multiboot vars onto stack.
+	pushl %ebx
 	pushl %eax
 
 	pushl $0x0F                # black/white
 	call vga_text_set_colours
 	call vga_text_clear
-	popl %edx
+	addl $4, %esp
 
 	call multiboot_init
-	call gdt_init
 
 	pushl $0x5F                # purple/white
 	call vga_text_set_colours
-	popl %edx
+	addl $4, %esp
 
 	pushl $string_start_success
 	call vga_text_print
-	popl %edx
+	addl $4, %esp
 
 	pushl $0x0F                # black/white
 	call vga_text_set_colours
-	popl %edx
+	addl $4, %esp
 
 	jmp kernel_init

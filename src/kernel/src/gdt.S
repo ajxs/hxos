@@ -9,96 +9,93 @@
  *     Anthony <ajxs [at] panoptic.online>
  */
 
-#include <gdt.h>
+.section .bss
 
 .align 4096
+.global global_descriptor_table
+global_descriptor_table:
+Lsegment_null:
+	.skip 8
+Lsegment_supervisor_code:
+	.skip 8
+Lsegment_supervisor_data:
+	.skip 8
+Lsegment_user_code:
+	.skip 8
+Lsegment_user_data:
+	.skip 8
+Lglobal_descriptor_table_end:
+
+
 .section .data
 
 string_gdt_init:
+	.asciz "gdt_init: Populating GDT...\n"
+string_gdt_load:
 	.asciz "gdt_init: Loading GDT...\n"
-string_gdt_reload:
-	.asciz "gdt_init: Reloading segment registers...\n"
-
-.global gdt_table                 # Hardcode GDT table
-gdt_table:
-gdt_null:
-	.long 0
-	.long 0
-gdt_code:
-	.word 0xFFFF
-	.word 0
-	.byte 0
-	.byte GDT_ACCESS_CODE_PL0
-	.byte GDT_FLAG_LIMIT_BYTE
-	.byte 0
-gdt_data:
-	.word 0xFFFF
-	.word 0
-	.byte 0
-	.byte GDT_ACCESS_DATA_PL0
-	.byte GDT_FLAG_LIMIT_BYTE
-	.byte 0
-gdt_misc:
-	.word 0xFFFF
-	.word 0
-	.byte 0
-	.byte GDT_ACCESS_CODE_PL3
-	.byte GDT_FLAG_LIMIT_BYTE
-	.byte 0
-gdt_misc2:
-	.word 0xFFFF
-	.word 0
-	.byte 0
-	.byte GDT_ACCESS_DATA_PL3
-	.byte GDT_FLAG_LIMIT_BYTE
-	.byte 0
-gdt_end:
+string_gdt_loaded:
+	.asciz "gdt_init: GDT loaded\n"
 
 
-.global gdt_table_test
-gdt_table_test:
-	.skip GDT_TABLE_SIZE*8
-gdt_table_test_end:
-
-
-gdt_ptr:
-	.word gdt_table - gdt_end        # table size
-	.long gdt_table                  # table offset
+/**
+ * GDT pointer structure.
+ * Contains the table size and offset. This is used to instruct the CPU
+ * as to the location of the GDT.
+ */
+global_descriptor_table_ptr:
+	.word global_descriptor_table - Lglobal_descriptor_table_end
+	.long global_descriptor_table
 
 
 .section .text
 
-.global gdt_set_gate
-gdt_set_gate:
-	pushl %ebp
-	movl %esp, %ebp
-
-	movl 8(%ebp), %eax              # n GDT descriptor
-	movl $gdt_table_test, %ecx
-	leal (%ecx, %eax, 8), %eax       # starting address of GDT descriptor in EAX
-
-	leave
-	ret
-
-
+/**
+ * gdt_init
+ */
 .global gdt_init
 gdt_init:
 	pushl $string_gdt_init
 	call vga_text_print
-	popl %edx
+	addl $4, %esp
 
-	lgdt gdt_ptr
-	ljmp $0x8, $gdt_init_reload_cs
-gdt_init_reload_cs:
-	pushl $string_gdt_reload
+	# Address of GDT is stored in EBX
+	movl $global_descriptor_table, %ebx
+
+	# Load address of supervisor code segment into EAX.
+	leal 8(%ebx), %eax
+	movl $0xFFFF, (%eax)
+	addl $4, %eax
+	movl $0xCF9A00, (%eax)
+
+	# Load address of supervisor data segment into EAX.
+	leal 16(%ebx), %eax
+	# Load the lower bytes of the descriptor structure.
+	movl $0xFFFF, (%eax)
+	# Load the higher bytes of the descriptor structure.
+	addl $4, %eax
+	movl $0xCF9300, (%eax)
+
+	# Load address of user code segment into EAX.
+	leal 24(%ebx), %eax
+	movl $0xFFFF, (%eax)
+	addl $4, %eax
+	movl $0xCFFA00, (%eax)
+
+	# Load address of user data segment into EAX.
+	leal 32(%ebx), %eax
+	movl $0xFFFF, (%eax)
+	addl $4, %eax
+	movl $0xCFF200, (%eax)
+
+	pushl $string_gdt_load
 	call vga_text_print
-	popl %edx
+	addl $4, %esp
 
-	mov $0x10, %eax
-	mov %ax, %ds                    # reload code segment registers
-	mov %ax, %es
-	mov %ax, %fs
-	mov %ax, %gs
-	mov %ax, %ss
+	# Load the GDT pointer.
+	lgdt global_descriptor_table_ptr
+
+	pushl $string_gdt_loaded
+	call vga_text_print
+	addl $4, %esp
 
 	ret

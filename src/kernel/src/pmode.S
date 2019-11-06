@@ -18,6 +18,9 @@ string_pmode_success:
 
 .section .text
 
+/*
+ * protected_mode_init
+ */
 .global protected_mode_init
 .type protected_mode_init, @function
 protected_mode_init:
@@ -26,17 +29,18 @@ protected_mode_init:
 
 	pushl $string_pmode_init
 	call vga_text_print
-	popl %edx
+	addl $4, %esp
 
 	movl %cr0, %eax
 	orl $0x1, %eax
 	movl %eax, %cr0
-	ljmp $0x8, $.protected_mode_init_reload
+	ljmp $0x8, $.Lprotected_mode_init_reload
 
-.protected_mode_init_reload:
+.Lprotected_mode_init_reload:
 	sti
 
-	mov $0x10, %eax              # reload segment registers
+	# reload segment registers
+	mov $0x10, %eax
 	mov %ax, %ds
 	mov %ax, %es
 	mov %ax, %fs
