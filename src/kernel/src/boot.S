@@ -108,11 +108,14 @@ init_boot_page_directory:
 	movl $1023, %ecx
 
 map_kernel_pages:
-	# Only map the kernel.
+	# If we're below the start of the kernel, increment the frame address
+	# without mapping that frame.
 	cmpl $(kernel_start - 0xC0000000), %esi
-	jl 2f
+	jl increment_frame_address
+	# If the current frame address is above the end of the kernel, skip to mapping
+	# the last frame to the VGA buffer.
 	cmpl $(kernel_end - 0xC0000000), %esi
-	jge Lmap_vga_buffer
+	jge map_vga_buffer
 
 	# Map physical address as "present, writable". Note that this maps
 	# .text and .rodata as writable. Mind security and map them as non-writable.
@@ -120,17 +123,17 @@ map_kernel_pages:
 	orl $0x003, %edx
 	movl %edx, (%edi)
 
-2:
+increment_frame_address:
 	# Size of page is 4096 bytes.
-	addl $4096, %esi
+	addl $0x1000, %esi
 	# Size of entries in kernel_page_table is 4 bytes.
 	addl $4, %edi
 	# Loop to the next entry if we haven't finished.
 	loop map_kernel_pages
 
-Lmap_vga_buffer:
+map_vga_buffer:
 	# Map VGA video memory to 0xC03FF000 as "present, writable".
-	movl $(0x000B8000 + 3), kernel_page_table - 0xC0000000 + 1023 * 4
+	movl $(0xB8000 + 3), kernel_page_table - 0xC0000000 + (1023 * 4)
 
 	# The page table is used at both page directory entry 0 (virtually from 0x0
 	# to 0x3FFFFF) (thus identity mapping the kernel) and page directory entry
@@ -139,8 +142,10 @@ Lmap_vga_buffer:
 	# not change the next instruction, which continues to be physical. The CPU
 	# would instead page fault if there was no identity mapping.
 
-Lload_mapped_page_tables:
-	# Map the page table to both virtual addresses 0x00000000 and 0xC0000000.
+load_mapped_page_tables:
+	# Map the kernel page table to both virtual addresses 0x00000000 and 0xC0000000.
+	# This allows the code to keep executing after enabling paging, prior to the
+	# absolute jump to the higher half.
 	movl $((kernel_page_table - 0xC0000000) + 3), boot_page_directory - 0xC0000000
 	movl $((kernel_page_table - 0xC0000000) + 3), boot_page_directory - 0xC0000000 + 768 * 4
 
@@ -171,10 +176,10 @@ _start:
 	movl %ecx, %cr0
 
 	# Absolute jump to higher half.
-	lea Lhigher_half_jump, %ecx
+	lea higher_half_jump, %ecx
 	jmp *%ecx
 
-Lhigher_half_jump:
+higher_half_jump:
 	# Setup stack.
 	movl $stack_top, %esp
 
