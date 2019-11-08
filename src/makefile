@@ -32,19 +32,19 @@ clean:
 	rm -rf ${BUILD_DIR}
 
 debug: ${ISO}
-	qemu-system-i386                   \
-		${QEMU_FLAGS}                    \
-		-drive format=raw,file=${ISO}    \
-		-d cpu_reset,int,guest_errors    \
-		-gdb tcp::1234                   \
-		-S                               \
+	qemu-system-i386                               \
+		${QEMU_FLAGS}                                \
+		-d cpu_reset,int,guest_errors                \
+		-drive format=raw,media=cdrom,file=${ISO}    \
+		-gdb tcp::1234                               \
+		-S                                           \
 		-serial file:${SERIAL_FILENAME}
 
 emu: ${ISO}
-	qemu-system-i386                   \
-		${QEMU_FLAGS}                    \
-		-drive format=raw,file=${ISO}    \
-		-serial stdio                    \
+	qemu-system-i386                               \
+		${QEMU_FLAGS}                                \
+		-drive format=raw,media=cdrom,file=${ISO}    \
+		-serial stdio
 
 ${KERNEL_BINARY}: ${BUILD_DIR}
 	make -C "${KERNEL_DIR}"

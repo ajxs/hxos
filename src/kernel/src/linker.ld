@@ -1,35 +1,33 @@
-/**
- *  Copyright (c) 2019, HXOS.
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the
- *  Free Software Foundation; either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Authors:
- *     Anthony <ajxs [at] panoptic.online>
- */
+ENTRY (_start)
 
-ENTRY(_start)
-SECTIONS {
-	. = 0x00100000;
-
-	kernel_start = .;
-	.text : ALIGN(4K) {
+SECTIONS
+{
+	/* The kernel will live at 3GB + 1MB in the virtual address space, */
+	/* which will be mapped to 1MB in the physical address space. */
+	/* Note that we page-align the sections. */
+	. = 0xC0100000;
+	/* Add a symbol that indicates the start address of the kernel. */
+	_kernel_start = .;
+	.text ALIGN (4K) : AT (ADDR (.text) - 0xC0000000)
+	{
 		*(.multiboot)
 		*(.text)
 	}
-
-	.rodata : ALIGN(4K) {
+	.rodata ALIGN (4K) : AT (ADDR (.rodata) - 0xC0000000)
+	{
 		*(.rodata)
 	}
-
-	.data : ALIGN(4K) {
+	.data ALIGN (4K) : AT (ADDR (.data) - 0xC0000000)
+	{
 		*(.data)
 	}
-
-	.bss : ALIGN(4K) {
+	.bss ALIGN (4K) : AT (ADDR (.bss) - 0xC0000000)
+	{
 		*(COMMON)
 		*(.bss)
+		*(.bootstrap_stack)
 	}
-	kernel_end = .;
+	/* Add a symbol that indicates the end address of the kernel. */
+	_kernel_end = .;
 }
+

@@ -3,23 +3,24 @@ CC := i686-elf-gcc
 INCLUDE_DIRS := src/include
 INCLUDE_FLAG := ${foreach d, ${INCLUDE_DIRS}, -I$d}
 
-CFLAGS := -ffreestanding    \
+CFLAGS :=                   \
 	-fno-stack-protector      \
-	-fpic                     \
+	-ffreestanding            \
 	-ggdb                     \
 	${INCLUDE_FLAG}           \
-	-O2                       \
 	-std=gnu99                \
 	-Wall                     \
 	-Wextra
 
-LDFLAGS := -O2    \
-	-nostdlib       \
+LDFLAGS :=            \
+	-ffreestanding      \
+	-nostdlib           \
 	-T src/linker.ld
 
 LIBS := -lgcc
 
-AS_SOURCES := src/boot.S    \
+AS_SOURCES :=               \
+	src/boot.S                \
 	src/gdt.S                 \
 	src/hxos.S                \
 	src/pmode.S               \
@@ -43,7 +44,7 @@ clean:
 	rm -rf ${BUILD_DIR}
 
 ${KERNEL_BINARY}: ${OBJECTS} ${BUILD_DIR}
-	${CC} ${LDFLAGS} ${OBJECTS} -o $@ ${LIBS}
+	${CC} ${LDFLAGS} ${OBJECTS} -o ${KERNEL_BINARY} ${LIBS}
 
 %.o: %.S
 	${CC} ${CFLAGS} -c $< -o $@
