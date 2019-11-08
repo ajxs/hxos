@@ -3,6 +3,7 @@ target remote localhost:1234
 file src/kernel/build/hxos.elf -readnow
 
 b _start
+b boot.S:120
 # c
 # x /5xg &global_descriptor_table
 # x /10xg &boot_page_table
