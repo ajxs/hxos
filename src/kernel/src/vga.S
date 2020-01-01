@@ -42,12 +42,10 @@ vga_text_clear:
 vga_text_set_colours:
 	pushl %ebp
 	movl %esp, %ebp
-	pushl %eax
 
 	movb 0x8(%ebp), %ah
 	mov %ah, vga_text_col
 
-	popl %eax
 	leave
 	ret
 

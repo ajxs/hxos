@@ -1,32 +1,81 @@
-ENTRY (_start)
+/**
+ *  Copyright (c) 2019, HXOS.
+ *  This program is free software; you can redistribute it and/or modify it
+ *  under the terms of the GNU General Public License as published by the
+ *  Free Software Foundation; either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  Authors:
+ *     Anthony <ajxs [at] panoptic.online>
+ */
 
+/** The physical starting address of the kernel. */
+KERNEL_PHYS_START = 0x100000;
+/**
+ * The offset between the physical start and the start of the kernel's
+ * mapping in virtual memory.
+ */
+KERNEL_VMA_OFFSET = 0xC0000000;
+/** The size of the kernel stack. */
+KERNEL_STACK_SIZE = 0x4000;
+
+ENTRY (_start)
 SECTIONS
 {
-	KERNEL_VMA_START = 0xC0000000;
-	. = 0xC0100000;
-
+	. = KERNEL_PHYS_START;
+	. += KERNEL_VMA_OFFSET;
 	kernel_start = .;
-	.text ALIGN (4K) : AT (ADDR (.text) - KERNEL_VMA_START)
+
+	.text ALIGN (4K) : AT (ADDR (.text) - KERNEL_VMA_OFFSET)
 	{
+		text_start = .;
 		*(.multiboot)
-		*(.text)
+		*(.text*)
+		text_end = .;
 	}
 
-	.rodata ALIGN (4K) : AT (ADDR (.rodata) - KERNEL_VMA_START)
+	.rodata ALIGN (4K) : AT (ADDR (.rodata) - KERNEL_VMA_OFFSET)
 	{
-		*(.rodata)
+		rodata_start = .;
+		*(.rodata*)
+		rodata_end = .;
 	}
 
-	.data ALIGN (4K) : AT (ADDR (.data) - KERNEL_VMA_START)
+	.data ALIGN (4K) : AT (ADDR (.data) - KERNEL_VMA_OFFSET)
 	{
-		*(.data)
+		data_start = .;
+		*(.data*)
+		data_end = .;
 	}
 
-	.bss ALIGN (4K) : AT (ADDR (.bss) - KERNEL_VMA_START)
+	.bss ALIGN (4K) : AT (ADDR (.bss) - KERNEL_VMA_OFFSET)
 	{
+		bss_start = .;
 		*(COMMON)
-		*(.bss)
+		*(.bss*)
+
+		. = ALIGN (4K);
+		stack_bottom = .;
+		. += KERNEL_STACK_SIZE;
+		stack_top = .;
+
+		/** Boot paging structures. */
+		. = ALIGN (4K);
+		boot_page_directory = .;
+		. += 0x1000;
+		boot_page_tables = .;
+		/**
+		 * Calculate the number of page tables necessary to hold the kernel.
+		 * Skip the amount of space necessary to hold this amount of pages.
+		 */
+		. += (1 + ((KERNEL_PHYS_START + kernel_end - kernel_start) / 0x400000)) * 0x1000;
+
+		boot_mapping_table = .;
+		. += 0x1000;
+
+		bss_end = .;
 	}
+
 	kernel_end = .;
 }
 

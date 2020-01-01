@@ -1,4 +1,10 @@
-CC := i686-elf-gcc
+.POSIX:
+.DELETE_ON_ERROR:
+MAKEFLAGS += --warn-undefined-variables
+MAKEFLAGS += --no-builtin-rules
+
+ARCH := i686
+CC   := ${ARCH}-elf-gcc
 
 INCLUDE_DIRS := src/include
 INCLUDE_FLAG := ${foreach d, ${INCLUDE_DIRS}, -I$d}
@@ -21,6 +27,7 @@ LIBS := -lgcc
 
 AS_SOURCES :=               \
 	src/boot.S                \
+	src/boot-paging.S         \
 	src/gdt.S                 \
 	src/hxos.S                \
 	src/pmode.S               \
@@ -31,7 +38,6 @@ OBJECTS := ${AS_SOURCES:.S=.o}
 BUILD_DIR     := build
 KERNEL_BINARY := ${BUILD_DIR}/hxos.elf
 
-.POSIX:
 .PHONY: all clean
 
 all: ${KERNEL_BINARY}
