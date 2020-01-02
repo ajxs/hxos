@@ -30,9 +30,14 @@ kernel_init:
 	push %ebp
 	movl %esp, %ebp
 
+	pushl $0x0F                              # Set VGA colours to black/white
+	call vga_text_set_colours
+	addl $4, %esp
+
 	pushl $string_kernel_init
 	call vga_text_print
 	addl $4, %esp
+
 
 	call gdt_init
 	call protected_mode_init

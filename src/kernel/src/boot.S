@@ -50,15 +50,18 @@ multiboot_init:
 	push %ebp
 	movl %esp, %ebp
 
+	pushl $0x0F                              # Set VGA colour to black/white
+	call vga_text_set_colours
+	call vga_text_clear
+	addl $4, %esp
+
 	pushl $string_boot_init
 	call vga_text_print
 	addl $4, %esp
 
-	movl 0x8(%ebp), %eax        # Multiboot magic var
-	movl 0x12(%ebp), %ebx       # pointer to MBI.
-
-	cmpl $0x2BADB002, %eax
-	jne multiboot_fail
+	movl $multiboot_magic, %eax              # Load multiboot magic address into EAX.
+	cmpl $0x2BADB002, (%eax)                 # Compare against expected value.
+	jne .multiboot_init_invalid_identity
 
 	pushl $string_boot_success
 	call vga_text_print
@@ -67,13 +70,8 @@ multiboot_init:
 	leave
 	ret
 
-
-#####################################################################
-# Multiboot fail
-#####################################################################
-.type multiboot_fail, @function
-multiboot_fail:
-	pushl $0x4F    #red/white
+.multiboot_init_invalid_identity:
+	pushl $0x4F                              # Set VGA colours to red/white.
 	call vga_text_set_colours
 	popl %edx
 
@@ -93,11 +91,12 @@ multiboot_fail:
 _start:
 	cli
 
+
 	# Store multiboot variables.
-	movl $KERNEL_VMA_OFFSET, %edx           # Store higher-half offset in EDX.
-	movl $multiboot_magic, %edi             # Store destination in EDI.
-	subl %edx, %edi                         # Subtract higher-half offset.
-	movl %eax, (%edi)                       # Copy multiboot magic number.
+	movl $KERNEL_VMA_OFFSET, %edx            # Store higher-half offset in EDX.
+	movl $multiboot_magic, %edi              # Store destination in EDI.
+	subl %edx, %edi                          # Subtract higher-half offset.
+	movl %eax, (%edi)                        # Copy multiboot magic number.
 
 	movl $multiboot_info_ptr, %edi
 	subl %edx, %edi
@@ -105,16 +104,16 @@ _start:
 
 	# Setup stack.
 	movl $stack_top, %eax
-	subl %edx, %eax                         # Subtract higher-half offset.
-	movl %eax, %esp                         # Move stack pointer to kernel stack top.
+	subl %edx, %eax                          # Subtract higher-half offset.
+	movl %eax, %esp                          # Move stack pointer to kernel stack top.
 
 	call init_boot_page_directory
 
 	# Load address of the page directory into CR3.
 	movl $KERNEL_VMA_OFFSET, %ebx
 	movl $boot_page_directory, %eax
-	subl %ebx, %eax                         # Subtract higher-half offset.
-	movl %eax, %cr3                         # Load page dir.
+	subl %ebx, %eax                          # Subtract higher-half offset.
+	movl %eax, %cr3                          # Load page dir.
 
 	# Enable paging and write-protect flag.
 	movl %cr0, %ecx
@@ -122,42 +121,24 @@ _start:
 	movl %ecx, %cr0
 
 	# Absolute jump to higher half.
-	lea higher_half_jump, %ecx
+	# The indirect call is necessary because by default the compiler will produce a
+	# PC relative jump call.
+	lea .higher_half_jump, %ecx
 	jmp *%ecx
 
-higher_half_jump:
-	# Setup stack.
+.higher_half_jump:
+	# Setup stack now we're in the higher half.
 	movl $stack_top, %esp
 
-	pushl $0x0F                             # Set VGA colour to black/white
-	call vga_text_set_colours
-	call vga_text_clear
-	addl $4, %esp
-
-	# push multiboot vars onto stack.
-	# Retrieve the magic number and boot info struct
-	# address then push onto the stack as per the Multiboot spec.
-	# See: https://www.gnu.org/software/grub/manual/multiboot/multiboot.html#Machine-state
-	movl $KERNEL_VMA_OFFSET, %edx           # Store higher-half offset in EDX.
-	movl $multiboot_magic, %eax
-	subl %edx, %eax                         # Subtract higher-half offset.
-	movl $multiboot_info_ptr, %ebx
-	subl %edx, %ebx
-
-	pushl (%ebx)
-	pushl (%eax)
+	# Validate multiboot info.
 	call multiboot_init
 
-	pushl $0x5F                             # Set VGA colours to purple/white
+	pushl $0x5F                              # Set VGA colours to purple/white
 	call vga_text_set_colours
 	addl $4, %esp
 
 	pushl $string_start_success
 	call vga_text_print
-	addl $4, %esp
-
-	pushl $0x0F                             # Set VGA colours to black/white
-	call vga_text_set_colours
 	addl $4, %esp
 
 	jmp kernel_init
