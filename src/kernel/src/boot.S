@@ -29,7 +29,7 @@ multiboot_magic:
 multiboot_info_ptr:
 	.space 4
 
-.section .data
+.section .rodata
 
 string_boot_init:
 	.asciz "multiboot_init: Checking multiboot header...\n"

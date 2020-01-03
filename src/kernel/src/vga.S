@@ -1,13 +1,13 @@
-/**
- *  Copyright (c) 2019, HXOS.
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the
- *  Free Software Foundation; either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Authors:
- *     Anthony <ajxs [at] panoptic.online>
- */
+#####################################################################
+#  Copyright (c) 2019, HXOS.
+#  This program is free software; you can redistribute it and/or modify it
+#  under the terms of the GNU General Public License as published by the
+#  Free Software Foundation; either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  Authors:
+#     Anthony <ajxs [at] panoptic.online>
+#####################################################################
 
 #include <vga.h>
 
@@ -21,11 +21,13 @@ vga_text_col:
 
 .section .text
 
+#####################################################################
 # void vga_text_clear();
+#####################################################################
 .global vga_text_clear
 .type vga_text_clear, @function
 vga_text_clear:
-	pushl %edi                          # preserve EDI
+	pushl %edi                               # preserve EDI
 	movb $0, %al
 	movb vga_text_col, %ah
 	movl $FRAMEBUFFER_LENGTH, %ecx
@@ -36,7 +38,9 @@ vga_text_clear:
 	ret
 
 
+#####################################################################
 # void vga_text_set_colours(uint16_t c);
+#####################################################################
 .global vga_text_set_colours
 .type vga_text_set_colours, @function
 vga_text_set_colours:
@@ -50,7 +54,9 @@ vga_text_set_colours:
 	ret
 
 
+#####################################################################
 # void vga_text_putchar(uint8_t c, uint8_t pos);
+#####################################################################
 .global vga_text_putchar
 .type vga_text_putchar, @function
 vga_text_putchar:
@@ -58,12 +64,12 @@ vga_text_putchar:
 	movl %esp, %ebp
 	pushl %edx
 
-	movl 12(%ebp), %edx                  #pos
-	addl %edx, %edx                      #double pos to take 16bit width into account
+	movl 12(%ebp), %edx                      # pos
+	addl %edx, %edx                          # Double pos for 16-bit char width.
 	addl $FRAMEBUFFER_ADDR, %edx
 
-	movzbw 8(%ebp), %ax                  #move byte and zero remaining bits
-	movsbw vga_text_col, %cx                  #create VGA entry from existing vga_text_col
+	movzbw 8(%ebp), %ax                      # Move byte and zero remaining bits.
+	movsbw vga_text_col, %cx                 # Create VGA entry from vga_text_col.
 	shlw $0x8, %cx
 	orw %cx, %ax
 
@@ -74,7 +80,9 @@ vga_text_putchar:
 	ret
 
 
+#####################################################################
 # void vga_text_shift();
+#####################################################################
 .type vga_text_shift, @function
 vga_text_shift:
 	pushl %edi
@@ -84,13 +92,15 @@ vga_text_shift:
 .vga_text_shift_loop:
 	movl FRAMEBUFFER_WIDTH*2(%edi), %eax
 	stosw
-	loop .vga_text_shift_loop            # copy framebuffer up one line
+	loop .vga_text_shift_loop                # copy framebuffer up one line
 
 	popl %edi
 	ret
 
 
+#####################################################################
 # void vga_text_newline();
+#####################################################################
 .type vga_text_newline, @function
 vga_text_newline:
 	pushl %edi
@@ -99,7 +109,7 @@ vga_text_newline:
 	xorl %edx, %edx
 	movw $FRAMEBUFFER_WIDTH, %bx
 	movw vga_text_pos, %ax
-	divw %bx                             # remainder in EDX
+	divw %bx                                 # Remainder stored in EDX.
 
 	subw %dx, %bx
 	jmp .vga_text_newline_fill
@@ -111,17 +121,17 @@ vga_text_newline:
 	movw %bx, %cx
 
 	movl $FRAMEBUFFER_ADDR, %edi
-	addw vga_text_pos, %di               # ∵ vga_text_pos != byte pos
+	addw vga_text_pos, %di                   # Therefore, vga_text_pos != byte pos.
 	addw vga_text_pos, %di
 
-	rep stosw                            # clear remainder of line
+	rep stosw                                # Clear remainder of line.
 
 	addw vga_text_pos, %bx
 	movw %bx, vga_text_pos
 
-	cmpw $FRAMEBUFFER_LENGTH, %bx        # check vga_text_pos against 0
+	cmpw $FRAMEBUFFER_LENGTH, %bx            # Check vga_text_pos against 0.
 	jne .vga_text_newline_exit
-	call vga_text_shift                  # if equal, shift
+	call vga_text_shift                      # If equal, shift.
 
 .vga_text_newline_exit:
 	popl %ebx
@@ -129,7 +139,9 @@ vga_text_newline:
 	ret
 
 
+#####################################################################
 # void vga_text_print(const char *c);
+#####################################################################
 .global vga_text_print
 .type vga_text_print, @function
 vga_text_print:
@@ -138,42 +150,42 @@ vga_text_print:
 
 	subl $40, %esp
 
-	movl $0, -16(%ebp)                   # current string pos
+	movl $0, -16(%ebp)                       # current string pos
 
-	movl 8(%ebp), %eax                   # string ptr
+	movl 8(%ebp), %eax                       # string ptr
 	movl %eax, (%esp)
 	call vga_text_strlen
-	movl %eax, -12(%ebp)                 # save strlen at -12(%ebp)
+	movl %eax, -12(%ebp)                     # save strlen at -12(%ebp)
 
 	jmp .vga_text_print_check
 
 .vga_text_print_loop:
-	movl 8(%ebp), %eax                   # load ptr to start of string ( arg )
-	movl -16(%ebp), %ecx                 # increment string counter
+	movl 8(%ebp), %eax                       # load ptr to start of string ( arg )
+	movl -16(%ebp), %ecx                     # increment string counter
 	addl %ecx, %eax
 	movzbl (%eax), %eax
 
-	cmpl $0xA, %eax                      # check for newline
+	cmpl $0xA, %eax                          # check for newline
 	jne .vga_text_print_putchar
 
 .vga_text_print_newline:
 	call vga_text_newline
-	jmp .vga_text_print_inc              # If \n don't increment vga_text_pos
+	jmp .vga_text_print_inc                  # If \n don't increment vga_text_pos
 
 .vga_text_print_putchar:
 	movzwl vga_text_pos, %edx
-	movl %edx, 4(%esp)                   # vga_text_pos
-	movl %eax, (%esp)                    # char
+	movl %edx, 4(%esp)                       # vga_text_pos
+	movl %eax, (%esp)                        # char
 	call vga_text_putchar
 
-	incw vga_text_pos                    # increment vga_text_pos
+	incw vga_text_pos                        # increment vga_text_pos
 
-	cmpw $FRAMEBUFFER_LENGTH, %dx        # check vga_text_pos against buffer length
+	cmpw $FRAMEBUFFER_LENGTH, %dx            # check vga_text_pos against buffer length
 	jne .vga_text_print_inc
-	call vga_text_shift                  # if equal, shift
+	call vga_text_shift                      # if equal, shift
 
 .vga_text_print_inc:
-	incw -16(%ebp)                       # inc current string pos
+	incw -16(%ebp)                           # inc current string pos
 
 .vga_text_print_check:
 	movl -16(%ebp), %eax
@@ -185,8 +197,10 @@ vga_text_print:
 	ret
 
 
+#####################################################################
 # int vga_text_strlen(const char *c);
-.global vga_text_strlen                #int strlen(const char *string);
+#####################################################################
+.global vga_text_strlen                    # int strlen(const char *string);
 vga_text_strlen:
 	push %edi
 
@@ -195,7 +209,7 @@ vga_text_strlen:
 	not %ecx
 	sub %al, %al
 	cld
-	repne scasb                          #rep not equal scan strng byte
+	repne scasb                              # rep not equal scan strng byte
 	not %ecx
 
 	pop %edi

@@ -9,7 +9,7 @@
 #     Anthony <ajxs [at] panoptic.online>
 #####################################################################
 
-.section .data
+.section .rodata
 
 string_pmode_init:
 	.asciz "protected_mode_init: beginning pmode init...\n"
