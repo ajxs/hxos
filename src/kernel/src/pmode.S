@@ -1,13 +1,13 @@
-/**
- *  Copyright (c) 2019, HXOS.
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the
- *  Free Software Foundation; either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Authors:
- *     Anthony <ajxs [at] panoptic.online>
- */
+#####################################################################
+#  Copyright (c) 2019, HXOS.
+#  This program is free software; you can redistribute it and/or modify it
+#  under the terms of the GNU General Public License as published by the
+#  Free Software Foundation; either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  Authors:
+#     Anthony <ajxs [at] panoptic.online>
+#####################################################################
 
 .section .data
 
@@ -40,9 +40,9 @@ protected_mode_init:
 	movl %eax, %cr0
 	# As per section 9.9 of the Intel SDM Vol.3A: Execute the far jump immediately
 	# after updating the value of CR0 to avoid random failures.
-	ljmp $0x8, $.Lprotected_mode_init_reload
+	ljmp $0x8, $.protected_mode_init_reload
 
-.Lprotected_mode_init_reload:
+.protected_mode_init_reload:
 	sti
 
 	# reload segment registers.
