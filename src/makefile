@@ -1,8 +1,24 @@
-BUILD_DIR := build
-ISO       := ${BUILD_DIR}/hxos.img
+#####################################################################
+#  Copyright (c) 2019, HXOS.
+#  This program is free software; you can redistribute it and/or modify it
+#  under the terms of the GNU General Public License as published by the
+#  Free Software Foundation; either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  Authors:
+#     Anthony <ajxs [at] panoptic.online>
+#####################################################################
 
-KERNEL_DIR    := kernel
-KERNEL_BINARY := ${KERNEL_DIR}/build/hxos.elf
+.POSIX:
+.DELETE_ON_ERROR:
+MAKEFLAGS += --warn-undefined-variables
+MAKEFLAGS += --no-builtin-rules
+
+ISO_DIR         := iso
+ISO             := ${ISO_DIR}/build/hxos.img
+
+KERNEL_DIR      := kernel
+KERNEL_BINARY   := ${KERNEL_DIR}/build/hxos.elf
 
 SERIAL_FILENAME := serial.log
 
@@ -24,10 +40,10 @@ ${BUILD_DIR}:
 	mkdir -p ${BUILD_DIR}
 
 ${ISO}: ${KERNEL_BINARY} ${BUILD_DIR}
-	cp "${KERNEL_BINARY}" iso/boot
-	grub-mkrescue -o ${ISO} iso
+	make -C "${ISO_DIR}"
 
 clean:
+	make clean -C "${ISO_DIR}"
 	make clean -C "${KERNEL_DIR}"
 	rm -rf ${BUILD_DIR}
 
@@ -45,6 +61,8 @@ emu: ${ISO}
 		${QEMU_FLAGS}                                \
 		-drive format=raw,media=cdrom,file=${ISO}    \
 		-serial stdio
+
+iso: ${ISO}
 
 ${KERNEL_BINARY}: ${BUILD_DIR}
 	make -C "${KERNEL_DIR}"
