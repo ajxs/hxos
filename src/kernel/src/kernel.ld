@@ -63,15 +63,16 @@ SECTIONS
 		. = ALIGN (4K);
 		boot_page_directory = .;
 		. += 0x1000;
+		boot_graphics_table = .;
+		. += 0x1000;
+		boot_mapping_table = .;
+		. += 0x1000;
 		boot_page_tables = .;
 		/**
 		 * Calculate the number of page tables necessary to hold the kernel.
 		 * Skip the amount of space necessary to hold this amount of pages.
 		 */
 		. += (1 + ((KERNEL_PHYS_START + kernel_end - kernel_start) / 0x400000)) * 0x1000;
-
-		boot_mapping_table = .;
-		. += 0x1000;
 
 		bss_end = .;
 	}

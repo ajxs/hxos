@@ -32,7 +32,7 @@ CFLAGS :=                   \
 LDFLAGS :=            \
 	-ffreestanding      \
 	-nostdlib           \
-	-T src/linker.ld
+	-T src/kernel.ld
 
 LIBS := -lgcc
 

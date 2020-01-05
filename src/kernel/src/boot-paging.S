@@ -102,6 +102,22 @@ map_section:
 	ret
 
 
+calculate_higher_half_directory_offset:
+	# Store the offset into the page directory in ECX.
+	movl $KERNEL_VMA_OFFSET, %eax
+	movl $0, %edx
+	movl $0x400000, %ebx
+	# Divide the kernel VMA offset by the size of a page frame.
+	divl %ebx
+
+	cmpl $0, %edx                            # Check if there is a remainder
+	je .end_calculate_higher_half_directory_offset
+
+	incl %eax                                # Increment by 1 due to remainder.
+
+.end_calculate_higher_half_directory_offset:
+	ret
+
 #####################################################################
 #  Initialise Boot Page Directory
 #
@@ -269,6 +285,38 @@ init_boot_page_directory:
 
 .end_map_sections:
 
+# Map the table used to hold the graphics buffer.
+.map_graphics_table:
+	movl $boot_page_directory, %ebx          # Store target address in EBX.
+	subl %eax, %ebx                          # Subtract VMA offset.
+	movl $(1021 * 4), %ecx                   # Store offset into page dir in ECX.
+	addl %ecx, %ebx                          # Add page dir offset to target address.
+
+	movl $boot_graphics_table, %edx          # Load page directory address into EDX.
+	subl %eax, %edx                          # Subtract VMA offset.
+	orl $3, %edx                             # Flags: Supervisor x Present x Writeable.
+	movl %edx, (%ebx)                        # Move to ideal entry in the page directory.
+
+# Map the VGA buffer into the first entry in the graphics table.
+# This maps the buffer to 0xFF400000.
+.map_vga_buffer:
+	movl $boot_graphics_table, %edi
+	subl %eax, %edi                          # Subtract VMA offset.
+	movl $0xB8003, (%edi)
+
+# Map the second last entry in the page directory to the mapping table.
+# This table is reserved for mapping in new paging structures.
+.map_mapping_table:
+	movl $boot_page_directory, %ebx          # Store target address in EBX.
+	subl %eax, %ebx                          # Subtract VMA offset.
+	movl $(1022 * 4), %ecx                   # Store offset into page dir in ECX.
+	addl %ecx, %ebx                          # Add page dir offset to target address.
+
+	movl $boot_mapping_table, %edx           # Load page directory address into EDX.
+	subl %eax, %edx                          # Subtract VMA offset.
+	orl $3, %edx                             # Flags: Supervisor x Present x Writeable.
+	movl %edx, (%ebx)                        # Move to ideal entry in the page directory.
+
 # Map the final entry in the page directory to itself.
 .recursively_map_boot_directory:
 	movl $boot_page_directory, %ebx          # Store target address in EBX.
@@ -306,16 +354,13 @@ init_boot_page_directory:
 .end_calculate_kernel_page_count:
 	movl %eax, %ecx                          # Store the page count in ECX.
 
-.calculate_higher_half_directory_offset:
-	# Store the offset into the page directory in ECX.
-	movl $KERNEL_VMA_OFFSET, %eax
-	movl $0, %edx
-	movl $0x100000, %ebx
-	# Divide the kernel VMA offset by the size of a page frame divided 4.
+	# Calculate the higher half page directory offset.
+	call calculate_higher_half_directory_offset
 	# This will give us the correct byte offset into the page directory
 	# to map the kernel pages.
 	# e.g 0xC0000000 / (0x400000 /4) = (768*4 bytes).
-	divl %ebx
+	movl $4, %ebx
+	mull %ebx
 	movl %eax, %ebx                          # Move result back to EBX.
 
 .insert_kernel_pages:
@@ -345,5 +390,28 @@ init_boot_page_directory:
 	loop .map_table
 
 .end_init_boot_page_directory:
+	ret
+
+
+#####################################################################
+# Remove Identity Mapping.
+#
+# This function removes the kernel identity mapping after the jump
+# to the higher-half.
+#####################################################################
+.global remove_identity_mapping
+remove_identity_mapping:
+	# Calculate the higher half page directory offset.
+	call calculate_higher_half_directory_offset
+	movl %eax, %ecx                          # Move result to ECX.
+	movl $boot_page_directory, %edi
+
+.remove_map_loop:
+	movl $0, (%edi)
+	addl $4, %edi
+
+	loop .remove_map_loop
+
+.end_remove_identity_mapping:
 	ret
 

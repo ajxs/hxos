@@ -141,4 +141,7 @@ _start:
 	call vga_text_print
 	addl $4, %esp
 
+	# Remove the lower-half indentity mapping.
+	call remove_identity_mapping
+
 	jmp kernel_init
