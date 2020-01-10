@@ -41,6 +41,9 @@ kernel_init:
 
 	call gdt_init
 	call protected_mode_init
+	# Initialise the kernel memory map.
+	call mmap_init
+
 	call kernel_main
 
 	# cleanup state here
