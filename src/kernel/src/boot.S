@@ -31,13 +31,13 @@ multiboot_info_ptr:
 
 .section .rodata
 
-string_boot_init:
+.string_boot_init:
 	.asciz "multiboot_init: Checking multiboot header...\n"
-string_boot_success:
+.string_boot_success:
 	.asciz "multiboot_init: Header valid!...\n"
-string_boot_fail:
+.string_boot_fail:
 	.asciz "multiboot_init: Header invalid!...\n"
-string_start_success:
+.string_start_success:
 	.asciz "_start: boot successful!...\n"
 
 .section .text
@@ -55,7 +55,7 @@ multiboot_init:
 	call vga_text_clear
 	addl $4, %esp
 
-	pushl $string_boot_init
+	pushl $.string_boot_init
 	call vga_text_print
 	addl $4, %esp
 
@@ -63,7 +63,7 @@ multiboot_init:
 	cmpl $0x2BADB002, (%eax)                 # Compare against expected value.
 	jne .multiboot_init_invalid_identity
 
-	pushl $string_boot_success
+	pushl $.string_boot_success
 	call vga_text_print
 	addl $4, %esp
 
@@ -75,7 +75,7 @@ multiboot_init:
 	call vga_text_set_colours
 	popl %edx
 
-	pushl $string_boot_fail
+	pushl $.string_boot_fail
 	call vga_text_print
 	popl %edx
 
@@ -137,7 +137,7 @@ _start:
 	call vga_text_set_colours
 	addl $4, %esp
 
-	pushl $string_start_success
+	pushl $.string_start_success
 	call vga_text_print
 	addl $4, %esp
 

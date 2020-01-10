@@ -55,3 +55,15 @@ mmap_init:
 	addl $4, %esp
 
 	ret
+
+
+#####################################################################
+# Mark a region as used or unused
+#
+#
+#####################################################################
+.global mmap_mark_region
+.type mmap_mark_region, @function
+mmap_mark_region:
+.end_mmap_mark_region:
+	ret

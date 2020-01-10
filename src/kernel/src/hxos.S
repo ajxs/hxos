@@ -1,29 +1,29 @@
-/**
- *  Copyright (c) 2019, HXOS.
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the
- *  Free Software Foundation; either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Authors:
- *     Anthony <ajxs [at] panoptic.online>
- */
+#####################################################################
+#  Copyright (c) 2019, HXOS.
+#  This program is free software; you can redistribute it and/or modify it
+#  under the terms of the GNU General Public License as published by the
+#  Free Software Foundation; either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  Authors:
+#     Anthony <ajxs [at] panoptic.online>
+#####################################################################
 
-.section .data
+.section .rodata
 
-string_kernel_init:
+.string_kernel_init:
 	.asciz "kernel_init: beginning Kernel init...\n"
-string_main_init:
+.string_main_init:
 	.asciz "kernel_main: Kernel init successful!...\n"
-string_main_next:
+.string_main_next:
 	.asciz "kernel_main: Halted awaiting useful instructions!...\n"
 
 
 .section .text
 
-/*
- * kernel_init
- */
+#####################################################################
+# Kernel Init
+#####################################################################
 .global kernel_init
 .type kernel_init, @function
 kernel_init:
@@ -34,7 +34,7 @@ kernel_init:
 	call vga_text_set_colours
 	addl $4, %esp
 
-	pushl $string_kernel_init
+	pushl $.string_kernel_init
 	call vga_text_print
 	addl $4, %esp
 
@@ -51,9 +51,9 @@ kernel_init:
 	jmp kernel_hang
 
 
-/*
- * kernel_hang
- */
+#####################################################################
+# Kernel Hang
+#####################################################################
 .global kernel_hang
 kernel_hang:
 	cli
@@ -61,9 +61,9 @@ kernel_hang:
 	jmp kernel_hang
 
 
-/*
- * kernel_main
- */
+#####################################################################
+# Kernel Main
+#####################################################################
 .global kernel_main
 .type kernel_main, @function
 kernel_main:
@@ -71,7 +71,7 @@ kernel_main:
 	call vga_text_set_colours
 	addl $4, %esp
 
-	pushl $string_main_init
+	pushl $.string_main_init
 	call vga_text_print
 	addl $4, %esp
 
@@ -79,7 +79,7 @@ kernel_main:
 	call vga_text_set_colours
 	addl $4, %esp
 
-	pushl $string_main_next
+	pushl $.string_main_next
 	call vga_text_print
 	addl $4, %esp
 
