@@ -9,8 +9,6 @@
 #     Anthony <ajxs [at] panoptic.online>
 #####################################################################
 
-#include <vga.h>
-
 .set MULTIBOOT_BOOTLOADER_MAGIC, 0x1BADB002
 .set MULTIBOOT_HEADER_FLAGS,     0x3
 .set MULTIBOOT_HEADER_CHECKSUM,  -(MULTIBOOT_BOOTLOADER_MAGIC + MULTIBOOT_HEADER_FLAGS)
