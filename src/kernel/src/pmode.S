@@ -11,9 +11,9 @@
 
 .section .rodata
 
-string_pmode_init:
+.string_pmode_init:
 	.asciz "protected_mode_init: beginning pmode init...\n"
-string_pmode_success:
+.string_pmode_success:
 	.asciz "protected_mode_init: pmode successfully initialised...\n"
 
 .section .text
@@ -31,7 +31,7 @@ protected_mode_init:
 	push %ebp
 	movl %esp, %ebp
 
-	pushl $string_pmode_init
+	pushl $.string_pmode_init
 	call vga_text_print
 	addl $4, %esp
 
@@ -55,7 +55,7 @@ protected_mode_init:
 	mov %ax, %gs
 	mov %ax, %ss
 
-	pushl $string_pmode_success
+	pushl $.string_pmode_success
 	call vga_text_print
 	addl $4, %esp
 

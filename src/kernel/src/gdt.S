@@ -28,11 +28,11 @@ global_descriptor_table:
 
 .section .rodata
 
-string_gdt_init:
+.string_gdt_init:
 	.asciz "gdt_init: Populating GDT...\n"
-string_gdt_load:
+.string_gdt_load:
 	.asciz "gdt_init: Loading GDT...\n"
-string_gdt_loaded:
+.string_gdt_loaded:
 	.asciz "gdt_init: GDT loaded\n"
 
 
@@ -53,7 +53,7 @@ global_descriptor_table_ptr:
 #####################################################################
 .global gdt_init
 gdt_init:
-	pushl $string_gdt_init
+	pushl $.string_gdt_init
 	call vga_text_print
 	addl $4, %esp
 
@@ -80,14 +80,14 @@ gdt_init:
 	addl $4, %eax
 	movl $0xCFF200, (%eax)
 
-	pushl $string_gdt_load
+	pushl $.string_gdt_load
 	call vga_text_print
 	addl $4, %esp
 
 	# Load the GDT pointer.
 	lgdt global_descriptor_table_ptr
 
-	pushl $string_gdt_loaded
+	pushl $.string_gdt_loaded
 	call vga_text_print
 	addl $4, %esp
 

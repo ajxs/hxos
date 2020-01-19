@@ -41,6 +41,7 @@ AS_SOURCES :=               \
 	src/boot-paging.S         \
 	src/gdt.S                 \
 	src/hxos.S                \
+	src/mmap.S                \
 	src/pmode.S               \
 	src/vga.S
 
