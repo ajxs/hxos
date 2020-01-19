@@ -102,8 +102,10 @@ _start:
 	subl %edx, %edi
 	movl %ebx, (%edi)
 
-	# Setup stack.
-	movl $stack_top, %eax
+	# Setup initial kernel stack.
+	# This will be moved to the final virtually mapped address after the boot paging
+	# structures have been initialised and the higher-half jump has been performed.
+	movl $kernel_stack_top, %eax
 	subl %edx, %eax                          # Subtract higher-half offset.
 	movl %eax, %esp                          # Move stack pointer to kernel stack top.
 
@@ -128,7 +130,7 @@ _start:
 
 .higher_half_jump:
 	# Setup stack now we're in the higher half.
-	movl $stack_top, %esp
+	movl $0xFF404000, %esp
 
 	# Validate multiboot info.
 	call multiboot_init

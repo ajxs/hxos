@@ -285,23 +285,40 @@ init_boot_page_directory:
 
 .end_map_sections:
 
-# Map the table used to hold the graphics buffer.
-.map_graphics_table:
+# Map the table used to hold reserved system resources.
+.map_system_table:
 	movl $boot_page_directory, %ebx          # Store target address in EBX.
 	subl %eax, %ebx                          # Subtract VMA offset.
 	movl $(1021 * 4), %ecx                   # Store offset into page dir in ECX.
 	addl %ecx, %ebx                          # Add page dir offset to target address.
 
-	movl $boot_graphics_table, %edx          # Load page directory address into EDX.
+	movl $boot_system_table, %edx            # Load page directory address into EDX.
 	subl %eax, %edx                          # Subtract VMA offset.
 	orl $3, %edx                             # Flags: Supervisor x Present x Writeable.
 	movl %edx, (%ebx)                        # Move to ideal entry in the page directory.
 
-# Map the VGA buffer into the first entry in the graphics table.
+# Map the kernel stack into the system table.
+.map_kernel_stack:
+	movl $boot_system_table, %edi            # Move system table address into EDI.
+	subl %eax, %edi                          # Subtract VMA offset.
+
+	movl $kernel_stack_bottom, %esi                 # Move the stack bottom address into ESI.
+	subl %eax, %esi                          # Subtract VMA offset.
+	orl $3, %esi                             # Apply flags.
+
+	movl $4, %ecx                            # Map 4 stack frames.
+.map_kernel_stack_frame:
+	movl %esi, (%edi)
+	addl $4, %edi
+	addl $0x1000, %esi
+	loop .map_kernel_stack_frame
+
+.end_kernel_stack_frame:
+
+# Map the VGA buffer into the first entry in the system table.
 # This maps the buffer to 0xFF400000.
 .map_vga_buffer:
-	movl $boot_graphics_table, %edi
-	subl %eax, %edi                          # Subtract VMA offset.
+	addl $4, %edi                            # Increment the page table address.
 	movl $0xB8003, (%edi)
 
 # Map the second last entry in the page directory to the mapping table.

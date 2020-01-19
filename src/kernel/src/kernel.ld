@@ -55,15 +55,15 @@ SECTIONS
 		*(.bss*)
 
 		. = ALIGN (4K);
-		stack_bottom = .;
+		kernel_stack_bottom = .;
 		. += KERNEL_STACK_SIZE;
-		stack_top = .;
+		kernel_stack_top = .;
 
 		/** Boot paging structures. */
 		. = ALIGN (4K);
 		boot_page_directory = .;
 		. += 0x1000;
-		boot_graphics_table = .;
+		boot_system_table = .;
 		. += 0x1000;
 		boot_mapping_table = .;
 		. += 0x1000;

@@ -12,7 +12,7 @@
 #ifndef TTY_H
 #define TTY_H 1
 
-#define FRAMEBUFFER_ADDR        0xFF400000
+#define FRAMEBUFFER_ADDR        0xFF405000
 #define FRAMEBUFFER_LENGTH      2000
 #define FRAMEBUFFER_WIDTH       80
 #define FRAMEBUFFER_HEIGHT      25
