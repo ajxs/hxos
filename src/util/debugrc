@@ -2,7 +2,4 @@ set architecture i386
 target remote localhost:1234
 file src/kernel/build/hxos.elf -readnow
 
-b boot.S:94
-# x /5xg &global_descriptor_table
-# x /10xg &boot_page_table
-
+b copy_multiboot_data

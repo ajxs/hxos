@@ -27,6 +27,11 @@ multiboot_magic:
 multiboot_info_ptr:
 	.space 4
 
+multiboot_mmap_addr:
+	.space 4
+multiboot_mmap_length:
+	.space 4
+
 .section .rodata
 
 .string_boot_init:
@@ -82,13 +87,50 @@ multiboot_init:
 
 
 #####################################################################
+# Copy Multiboot Data
+#####################################################################
+.global _start
+.type copy_multiboot_data, @function
+copy_multiboot_data:
+
+# Copy the mmap to a reserved area of memory in bss.
+.copy_multiboot_mmap:
+	movl $KERNEL_VMA_OFFSET, %edx            # Store higher-half offset in EDX.
+	movl $multiboot_info_ptr, %esi
+	subl %edx, %esi                          # Subtract higher-half offset.
+
+	movl (%esi), %esi                        # Copy pointer address into ESI.
+	addl $44, %esi                           # Add offset to the mmap length.
+
+	movl $multiboot_mmap_length, %edi        # Store length var address in EDI.
+	movl (%esi), %eax                        # Copy length into reserved var.
+	movl %eax, (%edi)                        # Copy length to address in EDI.
+
+	movl %eax, %ecx                          # Copy length into ECX.
+	movl $multiboot_reserved_start, %edi     # Move the reserved memory addr to EDI.
+
+	addl $4, %esi                            # Increment ESI to point to mmap addr.
+	movl (%esi), %eax                        # Move value contained at ESI to EAX.
+
+	movl %eax, %esi                          # Move value back to ESI.
+
+	movl $multiboot_mmap_addr, %eax          # Copy mmap target to EAX.
+	movl %edi, (%eax)                        # Copy memory address to global var.
+
+	rep movsb                                # Copy from ESI to EDI
+
+
+.end_copy_multiboot_data:
+	ret
+
+
+#####################################################################
 # Boot Entry point.
 #####################################################################
 .global _start
 .type _start, @function
 _start:
 	cli
-
 
 	# Store multiboot variables.
 	movl $KERNEL_VMA_OFFSET, %edx            # Store higher-half offset in EDX.
@@ -140,6 +182,8 @@ _start:
 	pushl $.string_start_success
 	call vga_text_print
 	addl $4, %esp
+
+	call copy_multiboot_data
 
 	# Remove the lower-half indentity mapping.
 	call remove_identity_mapping

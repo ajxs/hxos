@@ -55,6 +55,11 @@ SECTIONS
 		*(.bss*)
 
 		. = ALIGN (4K);
+		multiboot_reserved_start = .;
+		. += 1M;
+		multiboot_reserved_end = .;
+
+		. = ALIGN (4K);
 		kernel_stack_bottom = .;
 		. += KERNEL_STACK_SIZE;
 		kernel_stack_top = .;
