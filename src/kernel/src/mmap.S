@@ -37,6 +37,10 @@
 .global mmap_init
 .type mmap_init, @function
 mmap_init:
+	pushl $0x0F                              # black/white
+	call vga_text_set_colours
+	addl $4, %esp
+
 	pushl $.string_mmap_init
 	call vga_text_print
 	addl $4, %esp
@@ -50,6 +54,10 @@ mmap_init:
 	loop .set_frame_group
 
 .end_mmap_init:
+	pushl $0x5F                              # purple/white
+	call vga_text_set_colours
+	addl $4, %esp
+
 	pushl $.string_mmap_init_end
 	call vga_text_print
 	addl $4, %esp

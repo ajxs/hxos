@@ -42,6 +42,7 @@ AS_SOURCES :=               \
 	src/gdt.S                 \
 	src/hxos.S                \
 	src/mmap.S                \
+	src/multiboot.S           \
 	src/pmode.S               \
 	src/vga.S
 

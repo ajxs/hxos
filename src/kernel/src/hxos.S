@@ -41,8 +41,12 @@ kernel_init:
 
 	call gdt_init
 	call protected_mode_init
+
 	# Initialise the kernel memory map.
 	call mmap_init
+
+	# Parse Multiboot memory map provided by bootloader.
+	call multiboot_mmap_init
 
 	call kernel_main
 
@@ -75,7 +79,7 @@ kernel_main:
 	call vga_text_print
 	addl $4, %esp
 
-	pushl $0x6E                # black/white
+	pushl $0x6E                # brown/white
 	call vga_text_set_colours
 	addl $4, %esp
 
